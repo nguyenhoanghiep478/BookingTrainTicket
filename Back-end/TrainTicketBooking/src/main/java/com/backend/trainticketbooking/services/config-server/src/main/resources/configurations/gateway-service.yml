@@ -1,0 +1,80 @@
+spring:
+  cloud:
+    gateway:
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins:
+              - "http://localhost:3000"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders:
+              - "*"
+            allowCredentials: true
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      routes:
+        - id: customer-service
+          uri: lb:http://CUSTOMER-SERVICE
+          predicates:
+            - Path=/api/v1/customer/**
+          filters:
+            - AuthenticationFilter
+        - id: order-service
+          uri: lb:http://ORDER-SERVICE
+          predicates:
+            - Path=/api/v1/order/**
+          filters:
+            - AuthenticationFilter
+        - id: book-service
+          uri: lb:http://STORE-SERVICE
+          predicates:
+            - Path=/api/v1/book/**
+          filters:
+            - AuthenticationFilter
+        - id: inventory-service
+          uri: lb:http://STORE-SERVICE
+          predicates:
+            - Path=/api/v1/inventory/**
+          filters:
+            - AuthenticationFilter
+        - id: marketing-service
+          uri: lb:http://MARKETING-SERVICE
+          predicates:
+            - Path=/api/v1/marketing/**
+          filters:
+            - AuthenticationFilter
+        - id: shipment-service
+          uri: lb:http://SHIPMENT-SERVICE
+          predicates:
+            - Path=/api/v1/shipment/**
+          filters:
+            - AuthenticationFilter
+        - id: category-service
+          uri: lb:http://STORE-SERVICE
+          predicates:
+             - Path=/api/v1/category/**
+          filters:
+              - AuthenticationFilter
+        - id: authentication-service
+          uri: lb:http://AUTHENTICATION-SERVICE
+          predicates:
+            - Path=/api/v1/auth/**
+          filters:
+            - AuthenticationFilter
+        - id: role-service
+          uri: lb:http://AUTHENTICATION-SERVICE
+          predicates:
+            - Path=/api/v1/role/**
+          filters:
+            - AuthenticationFilter
+  main:
+    allow-circular-references: true
+server:
+  port: 8031
