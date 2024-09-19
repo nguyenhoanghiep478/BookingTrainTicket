@@ -4,7 +4,7 @@ spring:
       static-locations: file:upload/book
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/book
+    url: jdbc:postgresql://localhost:5432/store
     username: hiep
     password: 123456
   jpa:

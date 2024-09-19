@@ -32,16 +32,34 @@ spring:
             - Path=/api/v1/order/**
           filters:
             - AuthenticationFilter
-        - id: book-service
+        - id: railcar-service
           uri: lb:http://STORE-SERVICE
           predicates:
-            - Path=/api/v1/book/**
+            - Path=/api/v1/railcar/**
           filters:
             - AuthenticationFilter
-        - id: inventory-service
+        - id: train-service
           uri: lb:http://STORE-SERVICE
           predicates:
-            - Path=/api/v1/inventory/**
+            - Path=/api/v1/train/**
+          filters:
+            - AuthenticationFilter
+        - id: route-service
+          uri: lb:http://STORE-SERVICE
+          predicates:
+            - Path=/api/v1/route/**
+          filters:
+            - AuthenticationFilter
+        - id: schedule-service
+          uri: lb:http://STORE-SERVICE
+          predicates:
+            - Path=/api/v1/schedule/**
+          filters:
+            - AuthenticationFilter
+        - id: station-service
+          uri: lb:http://STORE-SERVICE
+          predicates:
+            - Path=/api/v1/station/**
           filters:
             - AuthenticationFilter
         - id: marketing-service
