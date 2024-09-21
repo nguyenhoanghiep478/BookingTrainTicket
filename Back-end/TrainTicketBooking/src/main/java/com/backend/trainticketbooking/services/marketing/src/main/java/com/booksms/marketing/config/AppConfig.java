@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 public class AppConfig {
     @Bean
     public Dotenv dotenv(){
-        return Dotenv.configure().directory("/book micro-service/microservice-books-ecommerce").load();
+        return Dotenv.configure().load();
     }
 
     @Bean

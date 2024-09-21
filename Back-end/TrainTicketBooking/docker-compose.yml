@@ -4,7 +4,7 @@ services:
     container_name: redis
     restart: always
     volumes:
-      - redis_volume_data:/data
+      - redis:/data
     ports:
       - 6379:6379
     depends_on:
@@ -42,32 +42,32 @@ services:
       - microservices-network
     restart: unless-stopped
 
-  mongodb:
-    container_name: microservice_mongo_db
-    image: mongo
-    ports:
-      - 27017:27017
-    volumes:
-      - mongo:/var/lib/mongo/data
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=hiep
-      - MONGO_INITDB_ROOT_PASSWORD=123456
-  mongo-express:
-    container_name: microservice_mongo_express
-    image: mongo-express
-    restart: unless-stopped
-    ports:
-      - 8081:8081
-    environment:
-      - ME_CONFIG_MONGODB_ADMINUSERNAME=hiep
-      - ME_CONFIG_MONGODB_ADMINPASSWORD=123456
-      - ME_CONFIG_MONGODB_SERVER=mongodb
-  mail-dev:
-    container_name: microservice_mail_dev
-    image: maildev/maildev
-    ports:
-      - 1080:1080
-      - 1025:1025
+#  mongodb:
+#    container_name: microservice_mongo_db
+#    image: mongo
+#    ports:
+#      - 27017:27017
+#    volumes:
+#      - mongo:/var/lib/mongo/data
+#    environment:
+#      - MONGO_INITDB_ROOT_USERNAME=hiep
+#      - MONGO_INITDB_ROOT_PASSWORD=123456
+#  mongo-express:
+#    container_name: microservice_mongo_express
+#    image: mongo-express
+#    restart: unless-stopped
+#    ports:
+#      - 8081:8081
+#    environment:
+#      - ME_CONFIG_MONGODB_ADMINUSERNAME=hiep
+#      - ME_CONFIG_MONGODB_ADMINPASSWORD=123456
+#      - ME_CONFIG_MONGODB_SERVER=mongodb
+#  mail-dev:
+#    container_name: microservice_mail_dev
+#    image: maildev/maildev
+#    ports:
+#      - 1080:1080
+#      - 1025:1025
 
 networks:
   microservices-network:
@@ -77,3 +77,4 @@ volumes:
   postgres:
   pgadmin:
   mongo:
+  redis:
