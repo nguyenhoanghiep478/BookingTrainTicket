@@ -51,7 +51,7 @@ public class AuthAnonymousController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody AuthRequest request) {
+    public ResponseEntity<?> login(@RequestBody @Valid AuthRequest request) {
         AuthResponse response = authService.login(request);
 
         return ResponseEntity.ok()
