@@ -52,7 +52,7 @@ public class Railcar extends AbstractEntity {
         for(int i =0 ;i< capacityPerFloor;i++){
             Seat seat = new Seat();
             seat.setSeatClass(railcarType.getSeatClass());
-            seat.setIsAvailable(true);
+            seat.setIsAvailable(false);
             seat.setRailcar(this);
             seat.setSeatType(railcarType.getSeatType());
             seat.setSeatNumber(String.format("%s.1%s",name,i < 10 ? "0"+i : i));
@@ -63,7 +63,7 @@ public class Railcar extends AbstractEntity {
             for(int i =0 ;i< capacityPerFloor;i++){
                 Seat seat = new Seat();
                 seat.setSeatClass(SeatClass.BUSINESS);
-                seat.setIsAvailable(true);
+                seat.setIsAvailable(false);
                 seat.setRailcar(this);
                 seat.setSeatType(railcarType.getSeatType());
                 seat.setSeatNumber(String.format("%s.2%s",name,i < 10 ? "0"+i : i));
