@@ -1,7 +1,6 @@
 package com.backend.store.core.domain.entity.schedule;
 
 import com.backend.store.core.domain.entity.AbstractEntity;
-import com.backend.store.core.domain.entity.Address;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

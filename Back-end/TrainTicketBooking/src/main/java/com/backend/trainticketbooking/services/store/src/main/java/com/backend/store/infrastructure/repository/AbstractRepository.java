@@ -55,4 +55,8 @@ public class AbstractRepository<T> {
         query.where(predicates.toArray(new Predicate[0]));
         return entityManager.createQuery(query).getResultList();
     }
+
+    public List nativeQuerySearch(String sql) {
+        return entityManager.createNativeQuery(sql).getResultList();
+    }
 }

@@ -9,6 +9,7 @@ import com.backend.store.core.domain.entity.schedule.Schedule;
 import com.backend.store.core.domain.entity.schedule.ScheduleStation;
 import com.backend.store.core.domain.entity.train.Train;
 import com.backend.store.core.domain.exception.ScheduleExistedException;
+import com.backend.store.core.domain.exception.TrainNotAvailableException;
 import com.backend.store.core.domain.repository.IScheduleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -38,6 +39,10 @@ public class CreateScheduleUseCase {
         private Schedule map(ScheduleModel scheduleModel) {
                 Route route = findRouteUseCase.findById(scheduleModel.getRouteId());
                 Train train = findTrainUseCase.findById(scheduleModel.getTrainId());
+
+                if(train.getCapacity() == 0 ){
+                    throw new TrainNotAvailableException(String.format("Train %s not available because capacity is 0" , train.getTrainName()));
+                }
 
                 Schedule schedule = new Schedule();
                 LocalDate tomorrow = LocalDate.now().plusDays(1);

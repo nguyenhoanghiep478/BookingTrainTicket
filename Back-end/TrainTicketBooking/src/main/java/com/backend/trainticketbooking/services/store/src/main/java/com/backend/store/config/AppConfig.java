@@ -1,5 +1,6 @@
 package com.backend.store.config;
 
+import com.backend.store.core.domain.entity.Booking.Ticket;
 import com.backend.store.core.domain.entity.schedule.Route;
 import com.backend.store.core.domain.entity.schedule.Schedule;
 import com.backend.store.core.domain.entity.schedule.Station;
@@ -46,5 +47,10 @@ public class AppConfig {
     @Bean
     public Class<Schedule> scheduleClass(){
         return Schedule.class;
+    }
+
+    @Bean
+    public Class<Ticket> ticketClass(){
+        return Ticket.class;
     }
 }

@@ -1,7 +1,8 @@
 package com.backend.store.core.domain.entity.train;
 
 import com.backend.store.core.domain.entity.AbstractEntity;
-import com.backend.store.core.domain.entity.schedule.Ticket;
+import com.backend.store.core.domain.entity.Booking.Ticket;
+import com.backend.store.core.domain.entity.schedule.TicketSeat;
 import com.backend.store.core.domain.state.SeatClass;
 import com.backend.store.core.domain.state.SeatType;
 import jakarta.persistence.*;
@@ -9,6 +10,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Entity
 @Getter
@@ -29,9 +31,9 @@ public class Seat extends AbstractEntity {
     @Column(nullable = false)
     private BigDecimal price;
 
-    @ManyToOne
-    @JoinColumn(name = "ticket_id")
-    private Ticket ticket;
+    @OneToMany(mappedBy = "seat")
+    private List<TicketSeat> ticket;
+
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "railcar_id", nullable = false)

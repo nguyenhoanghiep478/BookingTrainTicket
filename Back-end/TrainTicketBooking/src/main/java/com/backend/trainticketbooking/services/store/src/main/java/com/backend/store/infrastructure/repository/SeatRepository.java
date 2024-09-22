@@ -7,6 +7,7 @@ import com.backend.store.infrastructure.jpaRepository.SeatJpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Repository
@@ -36,5 +37,20 @@ public class SeatRepository extends AbstractRepository<Seat> implements ISeatRep
     @Override
     public List<Seat> findBy(List<Criteria> criteria) {
         return abstractSearch(criteria);
+    }
+
+    @Override
+    public List<Objects> findByNativeQuery(String sql, List<Integer> ids) {
+        return List.of();
+    }
+
+    @Override
+    public List<Integer> checkSeatsAtStation(List<Integer> seatIds,Integer scheduleId,Integer departureStationId) {
+        return seatJpaRepository.findAvailableSeatIds(scheduleId,departureStationId,seatIds);
+    }
+
+    @Override
+    public List<Object[]> findTotalAvailableSeatAtStation(Integer scheduleId) {
+        return seatJpaRepository.countAvailableSeats(scheduleId);
     }
 }
