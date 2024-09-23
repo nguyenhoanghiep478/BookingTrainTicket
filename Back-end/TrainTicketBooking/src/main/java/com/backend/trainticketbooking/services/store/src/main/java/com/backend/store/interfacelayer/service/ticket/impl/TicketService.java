@@ -1,8 +1,6 @@
 package com.backend.store.interfacelayer.service.ticket.impl;
 
 import com.backend.store.core.domain.entity.Booking.Ticket;
-import com.backend.store.core.domain.entity.schedule.TicketSeat;
-import com.backend.store.core.domain.entity.train.Seat;
 import com.backend.store.core.domain.entity.train.Train;
 import com.backend.store.interfacelayer.dto.objectDTO.TicketDTO;
 import com.backend.store.interfacelayer.dto.request.CreateTicketRequest;

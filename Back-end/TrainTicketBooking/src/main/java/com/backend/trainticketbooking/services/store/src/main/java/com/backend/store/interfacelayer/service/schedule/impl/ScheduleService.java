@@ -40,6 +40,19 @@ public class ScheduleService implements IScheduleService {
         return toSchedulesDTO(schedule,totalAvailableSeat);
     }
 
+    @Override
+    public ScheduleDTO toShortScheduleDTO(Schedule schedule) {
+        ScheduleStation departureScheduleStation = schedule.getScheduleStations().get(0);
+        ScheduleStation arrivalScheduleStation = schedule.getScheduleStations().get(schedule.getScheduleStations().size() - 1);
+        return ScheduleDTO.builder()
+                .departureStationName(departureScheduleStation.getStation().getName())
+                .arrivalStationName(arrivalScheduleStation.getStation().getName())
+                .arrivalTime(arrivalScheduleStation.getArrivalTime())
+                .departureTime(departureScheduleStation.getDepartureTime())
+                .build();
+    }
+
+
     private List<ScheduleDTO> toSchedulesDTO(Schedule schedule,List<AvailableSeatNumberForSchedule> totalAvailableSeat) {
         List<ScheduleDTO> response = new ArrayList<>();
         String trainName = schedule.getTrain().getTrainName();
