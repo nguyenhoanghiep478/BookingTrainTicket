@@ -1,0 +1,20 @@
+eureka:
+  instance:
+    hostname: localhost
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+spring:
+  cloud:
+    config:
+      override-system-properties: false
+  profiles:
+    active: prod
+    include:
+      - native
+
+
+DB_URL : jdbc:postgresql://ep-proud-thunder-a19yi7kh.ap-southeast-1.aws.neon.tech
+ADDITIONAL_PROP: &sslmode=require
+DB_USERNAME: ManagementBookingRailway_owner
+DB_PASSWORD: JwbWC1a0EfoT
