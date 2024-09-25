@@ -1,5 +1,6 @@
-package com.backend.store.core.domain.entity;
+package com.backend.store.core.domain.entity.schedule;
 
+import com.backend.store.core.domain.entity.AbstractEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -7,7 +8,7 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-public class Address extends AbstractEntity{
+public class Address extends AbstractEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;

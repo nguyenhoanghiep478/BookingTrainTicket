@@ -1,6 +1,7 @@
 package com.backend.store.web.controller;
 
 import com.backend.store.interfacelayer.dto.ResponseDTO;
+import com.backend.store.interfacelayer.dto.objectDTO.TrainDTO;
 import com.backend.store.interfacelayer.dto.request.ModifiedRailcarsToTrainRequest;
 import com.backend.store.interfacelayer.dto.request.CreateTrainRequest;
 import com.backend.store.interfacelayer.dto.response.ModifiedRailcarsToTrainResponse;
@@ -45,6 +46,16 @@ public class TrainController {
         return ResponseEntity.ok(ResponseDTO.builder()
                 .status(200)
                 .message(List.of("Detach railcars to train successful"))
+                .result(response)
+                .build());
+    }
+
+    @GetMapping("/get-all")
+    public ResponseEntity<?> getAll(){
+        List<TrainDTO> response = trainService.getAll();
+        return ResponseEntity.ok(ResponseDTO.builder()
+                .status(200)
+                .message(List.of("get all train successful"))
                 .result(response)
                 .build());
     }

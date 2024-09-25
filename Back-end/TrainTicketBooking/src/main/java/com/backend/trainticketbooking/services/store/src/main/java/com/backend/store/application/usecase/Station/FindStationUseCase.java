@@ -2,6 +2,7 @@ package com.backend.store.application.usecase.Station;
 
 import com.backend.store.application.model.Criteria;
 import com.backend.store.core.domain.entity.schedule.Station;
+import com.backend.store.core.domain.exception.StationNotExistException;
 import com.backend.store.core.domain.repository.IStationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -27,6 +28,19 @@ public class FindStationUseCase {
                 .operation("IN")
                 .value(ids)
                 .build();
-        return execute(List.of(criteria));
+        List<Station> stations = execute(List.of(criteria));
+
+        if(stations.size() != ids.size()){
+            List<Integer> stationIdsFound = stations.stream()
+                    .map(Station::getId)
+                    .toList();
+            List<Integer> stationNotExist = ids.stream()
+                    .filter(id -> !stationIdsFound.contains(id))
+                    .toList();
+            throw new StationNotExistException("The following station IDs do not exist: " + stationNotExist);
+        }
+        return stations;
     }
+
+
 }

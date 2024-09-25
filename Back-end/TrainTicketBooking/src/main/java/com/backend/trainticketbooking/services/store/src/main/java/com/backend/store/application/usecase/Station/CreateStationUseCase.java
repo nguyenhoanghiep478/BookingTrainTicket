@@ -2,7 +2,7 @@ package com.backend.store.application.usecase.Station;
 
 import com.backend.store.application.model.AddressModel;
 import com.backend.store.application.model.StationModel;
-import com.backend.store.core.domain.entity.Address;
+import com.backend.store.core.domain.entity.schedule.Address;
 import com.backend.store.core.domain.entity.schedule.Station;
 import com.backend.store.core.domain.exception.StationExistedException;
 import com.backend.store.core.domain.repository.IStationRepository;

@@ -39,11 +39,9 @@ CREATE TABLE seat (
                       seat_type VARCHAR(50),
                       is_available BOOLEAN NOT NULL DEFAULT TRUE,
                       price NUMERIC(10, 2) NOT NULL,
-                      ticket_id INTEGER,
                       railcar_id INTEGER NOT NULL,
                       created_date TIMESTAMP,
                       last_modified_date TIMESTAMP
-
 );
 
 CREATE TABLE route (
@@ -99,12 +97,19 @@ CREATE TABLE route_station (
 CREATE TABLE ticket (
                         id SERIAL PRIMARY KEY,
                         customer_id INTEGER,
-                        price DECIMAL(10, 2),
+                        total_price DECIMAL(10, 2),
                         created_date TIMESTAMP,
                         last_modified_date TIMESTAMP,
                         departure_station_id INTEGER NOT NULL REFERENCES station(id) ON DELETE SET NULL,
                         arrival_station_id INTEGER NOT NULL REFERENCES station(id) ON DELETE SET NULL,
                         schedule_id INTEGER NOT NULL REFERENCES schedule(id) ON DELETE CASCADE
+);
+
+CREATE TABLE ticket_seat(
+            id SERIAL PRIMARY KEY ,
+            seat_id INTEGER NOT NULL REFERENCES seat(id) ON DELETE CASCADE ,
+            ticket_id INTEGER NOT NULL REFERENCES ticket(id) ON DELETE CASCADE ,
+            price DECIMAL(10,2)
 );
 
 
