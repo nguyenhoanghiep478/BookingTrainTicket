@@ -70,6 +70,8 @@ public class TrainService implements ITrainService {
                 .capacity(train.getCapacity())
                 .totalRailCars(train.getTotalRailCars())
                 .schedules(scheduleDTOs)
+                .trainStatus(train.getTrainStatus())
+                .currentStation(train.getCurrentStation().getName())
                 .build();
     }
 }

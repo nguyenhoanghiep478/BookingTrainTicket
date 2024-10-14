@@ -2,6 +2,8 @@ package com.backend.store.core.domain.entity.train;
 
 import com.backend.store.core.domain.entity.AbstractEntity;
 import com.backend.store.core.domain.entity.schedule.Schedule;
+import com.backend.store.core.domain.entity.schedule.Station;
+import com.backend.store.core.domain.state.TrainStatus;
 import com.backend.store.core.domain.state.TrainType;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -14,6 +16,7 @@ import java.util.Set;
 @Entity
 @Getter
 @Setter
+@Table(name = "train")
 public class Train extends AbstractEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,6 +36,11 @@ public class Train extends AbstractEntity {
     private Set<Railcar> railcars ;
     @OneToMany(mappedBy = "train")
     private List<Schedule> schedules;
+    @Enumerated(EnumType.STRING)
+    private TrainStatus trainStatus;
+    @OneToOne
+    @JoinColumn(nullable = false,unique = true,name = "current_station_id")
+    private Station currentStation;
 
     @PrePersist
     protected void onCreate() {

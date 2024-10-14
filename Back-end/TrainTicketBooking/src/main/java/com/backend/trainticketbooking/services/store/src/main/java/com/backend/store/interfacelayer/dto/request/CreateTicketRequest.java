@@ -24,4 +24,9 @@ public class CreateTicketRequest {
     private BigDecimal price;
     @NotNull(message = "Schedule is required")
     private Integer scheduleId;
+    @NotNull(message = "Customer name is required")
+    private String customerName;
+    @NotNull(message = "Customer email is required")
+    private String customerEmail;
+    private Integer customerId;
 }

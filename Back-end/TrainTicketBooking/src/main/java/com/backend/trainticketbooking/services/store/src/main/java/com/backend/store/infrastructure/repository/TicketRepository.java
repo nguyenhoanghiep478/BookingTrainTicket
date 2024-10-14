@@ -2,6 +2,7 @@ package com.backend.store.infrastructure.repository;
 
 import com.backend.store.application.model.Criteria;
 import com.backend.store.core.domain.entity.Booking.Ticket;
+import com.backend.store.core.domain.entity.schedule.Schedule;
 import com.backend.store.core.domain.repository.ITicketRepository;
 import com.backend.store.infrastructure.jpaRepository.TicketJpaRepository;
 import org.springframework.stereotype.Repository;
@@ -29,5 +30,10 @@ public class TicketRepository extends AbstractRepository<Ticket> implements ITic
     @Override
     public List<Ticket> findBy(List<Criteria> criteria) {
         return abstractSearch(criteria);
+    }
+
+    @Override
+    public List<Ticket> findByScheduleId(Schedule schedule) {
+        return ticketJpaRepository.findBySchedule(schedule);
     }
 }

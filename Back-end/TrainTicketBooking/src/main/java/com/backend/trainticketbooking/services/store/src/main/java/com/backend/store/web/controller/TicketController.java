@@ -4,6 +4,7 @@ import com.backend.store.interfacelayer.dto.ResponseDTO;
 import com.backend.store.interfacelayer.dto.objectDTO.TicketDTO;
 import com.backend.store.interfacelayer.dto.request.CreateTicketRequest;
 import com.backend.store.interfacelayer.service.ticket.ITicketService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,7 +18,7 @@ public class TicketController {
     private final ITicketService ticketService;
 
     @PostMapping("/create")
-    public ResponseEntity<?> bookingTicket(@RequestBody CreateTicketRequest request) {
+    public ResponseEntity<?> bookingTicket(@RequestBody @Valid CreateTicketRequest request) {
         TicketDTO response = ticketService.bookingTicket(request);
         return ResponseEntity.ok(ResponseDTO.builder()
                 .status(200)
@@ -34,4 +35,5 @@ public class TicketController {
                 .result(response)
                 .build());
     }
+    
 }

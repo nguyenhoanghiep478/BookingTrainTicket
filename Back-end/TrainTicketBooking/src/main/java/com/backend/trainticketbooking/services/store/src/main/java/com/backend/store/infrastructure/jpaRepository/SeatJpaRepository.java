@@ -13,9 +13,9 @@ public interface SeatJpaRepository extends JpaRepository<Seat, Integer> {
             "JOIN schedule sch ON ss.schedule_id = sch.id " +
             "JOIN railcar r ON r.train_id = sch.train_id " +
             "JOIN seat s ON s.railcar_id = r.id " +
+            "LEFT JOIN ticket t ON sch.id = t.schedule_id " +
             "LEFT JOIN ticket_seat ts ON ts.seat_id = s.id " +
-            "LEFT JOIN ticket t ON ts.ticket_id = t.id " +
-            "WHERE ss.schedule_id = :scheduleId AND ss.id = :stationId AND (s.id IN :seatIds) " +
+            "WHERE ss.schedule_id = :scheduleId AND ss.station_id = :stationId AND (s.id IN :seatIds) " +
             "GROUP BY s.id, ss.station_id " +
             "HAVING COUNT(t.id) = 0 OR " +
             "(MIN(t.departure_station_id) > ss.station_id OR MAX(t.arrival_station_id) <= ss.station_id)",

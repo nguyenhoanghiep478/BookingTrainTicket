@@ -32,5 +32,4 @@ public class Schedule extends AbstractEntity {
     @OneToMany(mappedBy = "schedule")
     private List<Ticket> tickets;
 
-
 }

@@ -1,5 +1,6 @@
 package com.backend.store.application.model;
 
+import com.backend.store.core.domain.state.TicketStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,4 +20,8 @@ public class TicketModel {
     private Integer arrivalStationId;
     private BigDecimal price;
     private Integer scheduleId;
+    private String customerName;
+    private String customerEmail;
+    private Integer customerId;
+    private TicketStatus status;
 }

@@ -8,6 +8,7 @@ import com.booksms.marketing.interfaceLayer.dto.ResponseOrderCreated;
 import com.booksms.marketing.interfaceLayer.dto.VerifyUserDTO;
 import com.booksms.marketing.interfaceLayer.dto.request.EmailRequest;
 import com.booksms.marketing.interfaceLayer.dto.request.NewUserRegister;
+import com.booksms.marketing.interfaceLayer.dto.request.NotificationsDepartureTime;
 import com.booksms.marketing.interfaceLayer.dto.request.UserDTO;
 import com.booksms.marketing.interfaceLayer.service.IEmailService;
 import com.booksms.marketing.interfaceLayer.service.RedisNewUserService;
@@ -197,5 +198,15 @@ public class EmailService implements IEmailService {
     private Long generateToken(){
         Random random = new Random();
         return 100000 + random.nextLong(900000);
+    }
+
+    @KafkaListener(id = "consumer-ticket-notifications",topics = "notifications")
+    public void sendNotificationDepartureTime(NotificationsDepartureTime notificationsDepartureTime){
+        Context context = new Context();
+        context.setVariable("customerName", notificationsDepartureTime.getCustomerName());
+        context.setVariable("trainName", notificationsDepartureTime.getTrainName());
+        context.setVariable("seatName",notificationsDepartureTime.getSeatName());
+        context.setVariable("departureTime",notificationsDepartureTime.getDepartureTime());
+        sendMimeMessageMail("notificationTemplate", notificationsDepartureTime.getEmail(), context,"Notification Departure Time");
     }
 }

@@ -42,5 +42,13 @@ public class FindStationUseCase {
         return stations;
     }
 
+    public Station getStationById(int id){
+        Criteria criteria = Criteria.builder()
+                .key("id")
+                .operation(":")
+                .value(id)
+                .build();
 
+        return execute(List.of(criteria)).get(0);
+    }
 }
