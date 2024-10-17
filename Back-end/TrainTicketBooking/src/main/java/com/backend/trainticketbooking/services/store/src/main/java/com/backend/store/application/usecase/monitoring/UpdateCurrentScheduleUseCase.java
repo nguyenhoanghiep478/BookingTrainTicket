@@ -6,6 +6,7 @@ import com.backend.store.application.usecase.Schedule.UpdateScheduleUseCase;
 import com.backend.store.application.usecase.Station.FindStationUseCase;
 import com.backend.store.application.usecase.Train.FindTrainUseCase;
 import com.backend.store.core.domain.entity.Booking.Ticket;
+import com.backend.store.core.domain.repository.ITicketRepository;
 import com.backend.store.core.domain.state.TicketStatus;
 import com.backend.store.core.domain.entity.schedule.Route;
 import com.backend.store.core.domain.entity.schedule.Schedule;
@@ -13,15 +14,19 @@ import com.backend.store.core.domain.entity.schedule.ScheduleStation;
 import com.backend.store.core.domain.entity.schedule.Station;
 import com.backend.store.core.domain.entity.train.Train;
 import com.backend.store.core.domain.exception.*;
+import com.backend.store.core.domain.state.TrainStatus;
 import com.backend.store.interfacelayer.dto.response.MonitoringResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+import static com.backend.store.core.domain.state.TrainStatus.ON_STOPPED;
+
 @Component
 @RequiredArgsConstructor
 public class UpdateCurrentScheduleUseCase {
+    private final ITicketRepository ticketRepository;
     private final FindTrainUseCase findTrainUseCase;
     private final FindScheduleUseCase findScheduleUseCase;
     private final FindStationUseCase findStationUseCase;
@@ -43,6 +48,7 @@ public class UpdateCurrentScheduleUseCase {
         validate(schedule, station,train);
 
         train.setCurrentStation(station);
+        train.setTrainStatus(ON_STOPPED);
         //update time by actual time
         updateScheduleUseCase.updateByActualDepartureTime(schedule,station);
 
@@ -79,7 +85,7 @@ public class UpdateCurrentScheduleUseCase {
         int totalTicketCompleted = 0;
         for(Ticket ticket : tickets){
             //completed ticket and change seat status
-            if(ticket.getDepartureStation().equals(currentStation)){
+            if(ticket.getArrivalStation().equals(currentStation)){
                 totalTicketCompleted++;
                 ticket.setStatus(TicketStatus.COMPLETED);
                 ticket.getTicketSeats().stream().map(
@@ -88,6 +94,7 @@ public class UpdateCurrentScheduleUseCase {
                             return ticketSeat;
                         }
                 );
+                ticketRepository.save(ticket);
             }
         }
         return totalTicketCompleted;

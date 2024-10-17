@@ -17,4 +17,6 @@ public class FindTicketService implements IFindTicketService {
     public List<Ticket> getAll() {
         return findTicketUseCase.execute(null);
     }
+
+
 }

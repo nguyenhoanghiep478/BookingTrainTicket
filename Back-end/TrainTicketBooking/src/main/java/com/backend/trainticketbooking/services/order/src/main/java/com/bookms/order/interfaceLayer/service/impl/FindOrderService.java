@@ -1,18 +1,14 @@
 package com.bookms.order.interfaceLayer.service.impl;
 
 import com.bookms.order.application.model.Criteria;
-import com.bookms.order.application.model.OrderSearchCriteria;
-import com.bookms.order.application.model.OrdersModel;
 import com.bookms.order.application.servicegateway.IBookServiceGateway;
-import com.bookms.order.application.usecase.impl.FindOrdersUseCase;
 import com.bookms.order.application.usecase.IFindOrderUseCase;
 import com.bookms.order.application.usecase.impl.FindSpecialFieldUseCase;
 import com.bookms.order.application.usecase.impl.FindTopSalesUseCase;
-import com.bookms.order.core.domain.Entity.Orders;
+import com.bookms.order.core.domain.Entity.Order;
 import com.bookms.order.core.domain.State.DateOfWeek;
 import com.bookms.order.interfaceLayer.DTO.ChartDTO;
 import com.bookms.order.interfaceLayer.DTO.CrawChartDTO;
-import com.bookms.order.interfaceLayer.DTO.ProfitDTO;
 import com.bookms.order.interfaceLayer.DTO.TopSaleDTO;
 import com.bookms.order.interfaceLayer.service.IFindOrderService;
 import lombok.RequiredArgsConstructor;
@@ -20,11 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.time.DayOfWeek;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,7 +29,7 @@ public class FindOrderService implements IFindOrderService {
     private final IBookServiceGateway bookServiceGateway;
 
     @Override
-    public Orders findById(int id) {
+    public Order findById(int id) {
         Criteria fieldId = Criteria.builder()
                 .key("id")
                 .operator("=")
@@ -47,7 +39,7 @@ public class FindOrderService implements IFindOrderService {
     }
 
     @Override
-    public Orders findByOrderNumber(Long orderNumber) {
+    public Order findByOrderNumber(Long orderNumber) {
         Criteria fieldOrderNumber = Criteria.builder()
                 .key("orderNumber")
                 .operator("=")
@@ -57,12 +49,12 @@ public class FindOrderService implements IFindOrderService {
     }
 
     @Override
-    public List<Orders> findAll() {
+    public List<Order> findAll() {
         return findOrderUseCase.execute(null);
     }
 
     @Override
-    public List<Orders> findLatest(int amount) {
+    public List<Order> findLatest(int amount) {
         Criteria fieldCreatedDate = Criteria.builder()
                 .key("createdDate")
                 .operator("Order By")
@@ -91,7 +83,7 @@ public class FindOrderService implements IFindOrderService {
     public List<ChartDTO> getChartOrderInWeek() {
         Criteria searchBySQl = Criteria.builder()
                 .sql("select EXTRACT(DOW FROM o.created_date) as day_of_week,SUM(o.total_price) as total_payment,oi.book_id as book_id,sum(oi.total_quantity) as quantity\n" +
-                        "from orders o\n" +
+                        "from order o\n" +
                         "join\n" +
                         "order_items oi on o.id = oi.order_id\n" +
                         "where o.created_date >= DATE_TRUNC('week',NOW()) and o.status = 'COMPLETED'\n" +
@@ -120,7 +112,7 @@ public class FindOrderService implements IFindOrderService {
     }
 
     @Override
-    public List<Orders> findByCustomerId(int id) {
+    public List<Order> findByCustomerId(int id) {
         Criteria criteria = Criteria.builder()
                 .key("customerId")
                 .operator("=")

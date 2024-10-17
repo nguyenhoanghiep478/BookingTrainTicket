@@ -1,8 +1,6 @@
 package com.bookms.order.application.model;
 
-import com.bookms.order.core.domain.Entity.OrderType;
 import com.bookms.order.core.domain.Entity.Status;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,20 +14,19 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class OrdersModel {
-    private String recipient;
+    private String customerEmail;
     private Long orderNumber;
-    private OrderType orderType;
     private Status status;
-    private int customerId;
+    private Integer customerId;
+    private String customerName;
+    private Integer ticketId;
     private BigDecimal totalPrice;
     private List<OrderItemModel> orderItems;
+    private Integer scheduleId;
+    private Integer departureStationId;
+    private Integer arrivalStationId;
     private String paymentMethod;
     private List<BookModel> bookModels;
+    private List<SeatModel> seatModels;
     private Integer paymentId;
-    private Integer shipmentServiceId;
-    private Integer originAddressId;
-    private String destinationAddress;
-    private Integer shipmentId;
-    private double distance;
-    private double shipmentFee;
 }

@@ -1,8 +1,7 @@
 package com.bookms.order.infrastructure.repository;
 
 import com.bookms.order.application.model.Criteria;
-import com.bookms.order.core.domain.Entity.OrderType;
-import com.bookms.order.core.domain.Entity.Orders;
+import com.bookms.order.core.domain.Entity.Order;
 import com.bookms.order.core.domain.Entity.Status;
 import com.bookms.order.core.domain.Repository.IOrderRepository;
 import com.bookms.order.infrastructure.jpaRepository.OrderJpaRepository;
@@ -32,71 +31,67 @@ public class OrderRepository implements IOrderRepository {
     private EntityManager em;
 
     @Override
-    public Optional<Orders> findByOrderNumberAndCustomerIdAndOrderType(Long orderNumber, Integer customerId, OrderType orderType) {
+    public Optional<Order> findByOrderNumberAndCustomerIdAndOrderType(Long orderNumber, Integer customerId) {
         return Optional.empty();
     }
 
     @Override
-    public Optional<Orders> findByOrderNumberAndCustomerId(Long orderNumber, Integer customerId) {
+    public Optional<Order> findByOrderNumberAndCustomerId(Long orderNumber, Integer customerId) {
         return Optional.empty();
     }
 
     @Override
-    public Optional<Orders> findByOrderNumber(Long orderNumber) {
+    public Optional<Order> findByOrderNumber(Long orderNumber) {
 
         return orderJpaRepository.findByOrderNumber(orderNumber);
     }
 
     @Override
-    public Optional<Orders> findByIdAndOrderNumberAndCustomerIdAndOrderType(Integer id, Long orderNumber, Integer customerId, OrderType orderType) {
+    public Optional<Order> findByIdAndOrderNumberAndCustomerIdAndOrderType(Integer id, Long orderNumber, Integer customerId) {
         return Optional.empty();
     }
 
     @Override
-    public Optional<Orders> findById(Integer id) {
+    public Optional<Order> findById(Integer id) {
         return Optional.empty();
     }
 
     @Override
-    public List<Orders> findAllByCustomerIdAndOrderTypeAndStatusAndTotalPriceAndPaymentMethod(Integer customerId, OrderType orderType, Status status, BigDecimal totalPrice, String paymentMethod) {
+    public List<Order> findAllByCustomerIdAndOrderTypeAndStatusAndTotalPriceAndPaymentMethod(Integer customerId, Status status, BigDecimal totalPrice, String paymentMethod) {
         return List.of();
     }
 
     @Override
-    public List<Orders> findAllByCustomerIdAndOrderTypeAndStatus(Integer customerId, OrderType orderType, Status status) {
+    public List<Order> findAllByCustomerIdAndOrderTypeAndStatus(Integer customerId, Status status) {
         return List.of();
     }
 
     @Override
-    public List<Orders> findAllByCustomerIdAndOrderType(Integer customerId, OrderType orderType) {
+    public List<Order> findAllByCustomerIdAndOrderType(Integer customerId) {
         return List.of();
     }
 
     @Override
-    public List<Orders> findAllByCustomerId(Integer customerId) {
+    public List<Order> findAllByCustomerId(Integer customerId) {
         return List.of();
     }
 
-    @Override
-    public List<Orders> findAllByOrderType(OrderType orderType) {
-        return List.of();
-    }
 
     @Override
-    public List<Orders> findAll() {
+    public List<Order> findAll() {
         return jpaRepository.findAll();
     }
 
     @Override
-    public Orders save(Orders orders) {
-        return jpaRepository.save(orders);
+    public Order save(Order order) {
+        return jpaRepository.save(order);
     }
 
     @Override
-    public List<Orders> findByCriteria(List<Criteria> criteria) {
+    public List<Order> findByCriteria(List<Criteria> criteria) {
         CriteriaBuilder builder = em.getCriteriaBuilder();
-        CriteriaQuery<Orders> criteriaQuery = builder.createQuery(Orders.class);
-        Root<Orders> root = criteriaQuery.from(Orders.class);
+        CriteriaQuery<Order> criteriaQuery = builder.createQuery(Order.class);
+        Root<Order> root = criteriaQuery.from(Order.class);
         final Integer[] maxResult = new Integer[1];
         final String[] orderByField = new String[1];
         final Boolean[] ascending = {true};
@@ -155,7 +150,7 @@ public class OrderRepository implements IOrderRepository {
             }
         }
 
-        TypedQuery<Orders> query = em.createQuery(criteriaQuery);
+        TypedQuery<Order> query = em.createQuery(criteriaQuery);
 
         if (maxResult[0] != null) {
             query.setMaxResults(maxResult[0]);

@@ -11,7 +11,8 @@ public enum Error {
     CATEGORY_EXISTED(402,"Category existed",HttpStatus.BAD_REQUEST),
     ORDER_EXISTED(403,"Order already existed",HttpStatus.BAD_REQUEST),
     INSUFFICIENT_QUANTITY_EXCEPTION(403,"Insufficient quantity",HttpStatus.BAD_REQUEST),
-    INVALID_ARGUMENT(500,"Invalid argument",HttpStatus.BAD_REQUEST),
+    INVALID_TOKEN_EXCEPTION(400,"Invalid Token ",HttpStatus.BAD_REQUEST)
+    ,INVALID_ARGUMENT(500,"Invalid argument",HttpStatus.BAD_REQUEST),
     INTERNAL_ERROR(500,"Internal error,please contact admin",HttpStatus.INTERNAL_SERVER_ERROR),;
     ;
 

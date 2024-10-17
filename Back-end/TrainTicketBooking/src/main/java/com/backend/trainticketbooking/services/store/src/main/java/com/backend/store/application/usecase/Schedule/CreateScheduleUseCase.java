@@ -12,6 +12,7 @@ import com.backend.store.core.domain.exception.ScheduleExistedException;
 import com.backend.store.core.domain.exception.TrainNotAvailableException;
 import com.backend.store.core.domain.repository.IScheduleRepository;
 import static com.backend.store.core.domain.state.StaticVar.*;
+import static com.backend.store.core.domain.state.TrainStatus.ON_WORKING;
 
 import com.backend.store.core.domain.state.StaticVar;
 import com.backend.store.core.domain.state.TrainStatus;
@@ -45,6 +46,7 @@ public class CreateScheduleUseCase {
 
                 Schedule newSchedule = map(scheduleModel);
                 train.setCurrentStation(startStation);
+                train.setTrainStatus(ON_WORKING);
                 return repository.save(newSchedule);
         }
 

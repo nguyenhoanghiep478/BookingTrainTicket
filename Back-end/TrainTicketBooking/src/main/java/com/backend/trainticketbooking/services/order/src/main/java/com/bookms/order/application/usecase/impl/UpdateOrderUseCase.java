@@ -2,7 +2,7 @@ package com.bookms.order.application.usecase.impl;
 
 import com.bookms.order.application.BaseUseCase;
 import com.bookms.order.application.model.OrdersModel;
-import com.bookms.order.core.domain.Entity.Orders;
+import com.bookms.order.core.domain.Entity.Order;
 import com.bookms.order.core.domain.Exception.OrderNotFoundException;
 import com.bookms.order.core.domain.Repository.IOrderRepository;
 import lombok.RequiredArgsConstructor;
@@ -11,21 +11,20 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @RequiredArgsConstructor
-public class UpdateOrderUseCase implements BaseUseCase<Orders, OrdersModel> {
+public class UpdateOrderUseCase implements BaseUseCase<Order, OrdersModel> {
     private final IOrderRepository repository;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Orders execute(OrdersModel ordersModel) {
-        Orders orders = repository.findByOrderNumber(ordersModel.getOrderNumber()).orElseThrow(
+    public Order execute(OrdersModel ordersModel) {
+        Order order = repository.findByOrderNumber(ordersModel.getOrderNumber()).orElseThrow(
                 () -> new OrderNotFoundException(String.format("Order %s not found", ordersModel.getOrderNumber()))
         );
 
-        orders.setPaymentId(ordersModel.getPaymentId());
-        orders.setPaymentMethod(ordersModel.getPaymentMethod());
-        orders.setShipmentId(ordersModel.getShipmentId());
-        orders.setStatus(ordersModel.getStatus());
+        order.setPaymentId(ordersModel.getPaymentId());
+        order.setPaymentMethod(ordersModel.getPaymentMethod());
+        order.setStatus(ordersModel.getStatus());
 
-        return repository.save(orders);
+        return repository.save(order);
     }
 }

@@ -33,6 +33,7 @@ public class TicketService implements ITicketService {
     }
 
 
+
     private TicketDTO toDTO(Ticket ticket) {
         Train train = ticket.getTicketSeats().stream()
                 .map(ticketSeat -> ticketSeat.getSeat().getRailcar().getTrain()).toList().get(0);

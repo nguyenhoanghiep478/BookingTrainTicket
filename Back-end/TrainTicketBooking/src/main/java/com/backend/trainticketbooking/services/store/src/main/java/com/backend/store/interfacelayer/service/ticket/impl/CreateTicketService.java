@@ -9,20 +9,25 @@ import com.backend.store.interfacelayer.dto.objectDTO.CustomerDTO;
 import com.backend.store.interfacelayer.dto.request.CreateTicketRequest;
 import com.backend.store.interfacelayer.service.ticket.ICreateTicketService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class CreateTicketService implements ICreateTicketService {
     private final CreateTicketUseCase createTicketUseCase;
     private final ModelMapper modelMapper;
     private final IAuthenticationService authenticationService;
 
     @Override
+    @KafkaListener(id = "consumer-store-order-created",topics = "order-created")
     public Ticket bookingTicket(CreateTicketRequest request) {
         String customerName;
         String customerEmail;
+        log.info(request.toString());
         if(request.getCustomerId() != null){
             CustomerDTO customerDTO = authenticationService.getCustomerById(request.getCustomerId());
             customerName = customerDTO.getFirstName() + " " + customerDTO.getLastName();
@@ -37,6 +42,7 @@ public class CreateTicketService implements ICreateTicketService {
                 .departureStationId(request.getDepartureStationId())
                 .customerEmail(customerEmail)
                 .customerName(customerName)
+                .id(request.getId())
                 .status(TicketStatus.IN_PROGRESS)
                 .scheduleId(request.getScheduleId())
                 .seatIds(request.getSeatIds())

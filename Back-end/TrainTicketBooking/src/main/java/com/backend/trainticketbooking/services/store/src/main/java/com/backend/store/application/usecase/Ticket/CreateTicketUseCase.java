@@ -47,10 +47,14 @@ public class CreateTicketUseCase {
     }
 
     private Ticket map(Schedule schedule,final TicketModel model,List<Station> stations,List<Seat> orderedSeat){
-        validate(schedule,stations.get(0));
+        findScheduleUseCase.validate(schedule,stations.get(0));
         Ticket ticket = new Ticket();
+        if(model.getId() != null){
+            ticket.setId(model.getId());
+        }
         ticket.setDepartureStation(stations.get(0));
         ticket.setArrivalStation(stations.get(1));
+        ticket.setStatus(model.getStatus());
         BigDecimal totalPrice = BigDecimal.ZERO;
         List<TicketSeat> seats = ticket.getTicketSeats();
         for (Seat seat : orderedSeat){
@@ -73,10 +77,5 @@ public class CreateTicketUseCase {
         return ticket;
     }
 
-    private void validate(Schedule schedule,Station departureStation){
-        ScheduleStation scheduleStation = schedule.getScheduleStations().stream().filter(finding -> finding.getStation().equals(departureStation)).findFirst().get();
-        if (scheduleStation.getDepartureTime().before(new Date())){
-            throw new ScheduleOutOfTimeException("Schedule time is out of time");
-        }
-    }
+
 }

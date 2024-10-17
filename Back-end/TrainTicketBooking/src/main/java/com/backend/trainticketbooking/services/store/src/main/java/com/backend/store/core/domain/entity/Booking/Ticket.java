@@ -18,7 +18,6 @@ import java.util.List;
 @Setter
 public class Ticket extends AbstractEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private Integer customerId;
     private String customerName;

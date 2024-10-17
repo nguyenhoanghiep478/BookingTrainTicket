@@ -14,6 +14,8 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class CreateTicketRequest {
+    private Integer ticketId;
+    private Integer id;
     @NotNull(message = "Seat is required")
     private List<Integer> seatIds;
     @NotNull(message = "Departure station is required")
