@@ -9,6 +9,7 @@ import com.backend.store.core.domain.entity.schedule.ScheduleStation;
 import com.backend.store.core.domain.state.StaticVar;
 import com.backend.store.interfacelayer.dto.request.NotificationRequest;
 import com.backend.store.interfacelayer.service.schedule.IFindScheduleService;
+import com.backend.store.interfacelayer.service.ticket.IFindTicketService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -22,15 +23,15 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class NotificationService {
-    private final IFindScheduleService findScheduleService;
+//    private final IFindScheduleService findScheduleService;
     private final KafkaTemplate<String, NotificationRequest> kafkaTemplate;
-
-    @Scheduled(fixedRate = 60000)
+    private final IFindTicketService findTicketService;
+    @Scheduled(fixedRate = 60000 * 30)
     public void checkAndSendDepartureNotifications(){
         log.info("Checking departure notifications");
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime oneHourFromNow = LocalDateTime.now().plusHours(1);
-        List<NotificationRequest> notifications = findScheduleService.findTicketBetweenDepartureTime(now,oneHourFromNow);
+        List<NotificationRequest> notifications = findTicketService.findTicketBetween(now,oneHourFromNow);
         for (NotificationRequest notification : notifications) {
             log.info(notification.toString());
             kafkaTemplate.send("notifications", notification);

@@ -48,8 +48,8 @@ public class UpdateScheduleUseCase {
                 continue;
             }
 
-            LocalDateTime arrivalTime = actualDepartureTime.plusMinutes(TRAVEL_TIME_MINUTES);
-            LocalDateTime departureTime = arrivalTime.plusMinutes(BREAK_TIME_MINUTES);
+            LocalDateTime departureTime = actualDepartureTime.plusMinutes(TRAVEL_TIME_MINUTES);
+            LocalDateTime arrivalTime = departureTime.plusMinutes(BREAK_TIME_MINUTES);
 
             Timestamp arrivalTimestamp = Timestamp.valueOf(arrivalTime);
             Timestamp departureTimestamp = Timestamp.valueOf(departureTime);
@@ -60,7 +60,7 @@ public class UpdateScheduleUseCase {
             long travelTimeMillis = Duration.between(actualDepartureTime, arrivalTime).toMillis();
             scheduleStation.setTravelTime(travelTimeMillis);
 
-            actualDepartureTime = departureTime;
+            actualDepartureTime = arrivalTime;
 
             startTime[0] = Timestamp.valueOf(actualDepartureTime);
 
