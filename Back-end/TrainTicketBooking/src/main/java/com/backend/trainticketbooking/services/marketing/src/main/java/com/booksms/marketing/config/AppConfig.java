@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 public class AppConfig {
     @Bean
     public Dotenv dotenv(){
-        return Dotenv.configure().directory("./TrainTicketBooking/.env").load();
+        return Dotenv.configure().load();
     }
 
     @Bean

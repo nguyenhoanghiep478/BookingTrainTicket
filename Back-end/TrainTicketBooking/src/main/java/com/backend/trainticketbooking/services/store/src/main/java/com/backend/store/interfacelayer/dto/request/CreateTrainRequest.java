@@ -20,4 +20,6 @@ public class CreateTrainRequest {
     private String trainName;
     @NotNull(message = "train type is required")
     private TrainType trainType;
+    @NotNull(message = "current Station id is required")
+    Integer currentStationId;
 }
