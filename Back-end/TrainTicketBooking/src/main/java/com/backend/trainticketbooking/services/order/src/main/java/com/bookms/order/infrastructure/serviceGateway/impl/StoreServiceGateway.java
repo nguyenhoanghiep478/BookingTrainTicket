@@ -46,6 +46,7 @@ public class StoreServiceGateway implements IStoreServiceGateway {
 
         }catch (Error e){
             log.error(e.getMessage());
+
         }
         return null;
     }
