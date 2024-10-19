@@ -10,4 +10,5 @@ public interface ITicketService {
 
     List<TicketDTO> getAll();
 
+    boolean updateStatusAfterScanQR(String text);
 }

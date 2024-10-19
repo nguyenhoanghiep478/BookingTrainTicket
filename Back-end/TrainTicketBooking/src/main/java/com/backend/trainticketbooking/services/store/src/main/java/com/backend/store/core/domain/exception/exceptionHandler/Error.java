@@ -18,7 +18,7 @@ public enum Error {
     STATION_NOT_EXISTED_EXCEPTION(400,"Station not exist",HttpStatus.BAD_REQUEST),
     INVALID_STOP_SEQUENCE_EXCEPTION(400,"Invalid stop sequence",HttpStatus.BAD_REQUEST),
     TRAIN_EXISTED_EXCEPTION(400,"Train already existed",HttpStatus.BAD_REQUEST),
-    TRAIN_NOT_EXISTED_EXCEPTION(400,"Train already existed",HttpStatus.BAD_REQUEST),
+    TRAIN_NOT_EXISTED_EXCEPTION(400,"Train not exist",HttpStatus.BAD_REQUEST),
     SCHEDULE_OUT_OF_TIME_EXCEPTION(400,"Schedule out of time",HttpStatus.BAD_REQUEST),
     STATION_NOT_IN_SCHEDULE(400,"Station not in schedule",HttpStatus.BAD_REQUEST),
     CUSTOMER_NOT_FOUND_EXCEPTION(400,"Customer not found",HttpStatus.BAD_REQUEST),

@@ -9,8 +9,9 @@ import com.backend.store.core.domain.state.TrainStatus;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-
 import static com.backend.store.core.domain.state.TrainStatus.*;
+
+
 
 @Component
 @RequiredArgsConstructor

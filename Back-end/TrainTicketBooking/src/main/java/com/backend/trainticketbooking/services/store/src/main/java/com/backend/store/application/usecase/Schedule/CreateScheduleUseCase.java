@@ -40,7 +40,7 @@ public class CreateScheduleUseCase {
                 Route route = findRouteUseCase.findById(scheduleModel.getRouteId());
                 Station startStation = route.getRouteStations().get(0).getStation();
 
-                if(!train.getCurrentStation().equals(startStation) ){
+                if(train.getCurrentStation() != null &&!train.getCurrentStation().equals(startStation) ){
                     throw new TrainNotAvailableException(String.format("Train %s is not at the current station",train.getTrainName()));
                 }
 

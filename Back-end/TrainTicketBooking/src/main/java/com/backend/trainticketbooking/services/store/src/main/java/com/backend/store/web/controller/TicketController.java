@@ -3,12 +3,18 @@ package com.backend.store.web.controller;
 import com.backend.store.interfacelayer.dto.ResponseDTO;
 import com.backend.store.interfacelayer.dto.objectDTO.TicketDTO;
 import com.backend.store.interfacelayer.dto.request.CreateTicketRequest;
+import com.backend.store.interfacelayer.service.QRCode.IQRCodeService;
 import com.backend.store.interfacelayer.service.ticket.ITicketService;
+import com.google.zxing.WriterException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -16,6 +22,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TicketController {
     private final ITicketService ticketService;
+    private final IQRCodeService qrCodeService;
 
     @PostMapping("/create")
     public ResponseEntity<?> bookingTicket(@RequestBody @Valid CreateTicketRequest request) {
@@ -35,5 +42,19 @@ public class TicketController {
                 .result(response)
                 .build());
     }
-    
+
+    @GetMapping("/create-qr")
+    public ResponseEntity<?> createQRCode(@RequestParam("ticket_id") Integer ticketId) throws IOException, WriterException {
+        byte[] qrCode = qrCodeService.generateQRCode(String.valueOf(ticketId));
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.IMAGE_PNG);
+        return ResponseEntity.ok().headers(headers).body(qrCode);
+    }
+
+    @PostMapping("/read-qr")
+    public ResponseEntity<String> readQRCode(@RequestParam MultipartFile qr) throws IOException {
+        byte[] qrBytes = qr.getBytes();
+        String result = qrCodeService.readQRCode(qrBytes);
+        return ResponseEntity.ok(result);
+    }
 }
