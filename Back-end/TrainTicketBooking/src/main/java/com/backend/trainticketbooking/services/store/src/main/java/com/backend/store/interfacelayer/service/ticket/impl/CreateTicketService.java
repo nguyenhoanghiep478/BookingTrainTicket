@@ -7,12 +7,18 @@ import com.backend.store.core.domain.state.TicketStatus;
 import com.backend.store.infrastructure.servicegateway.IAuthenticationService;
 import com.backend.store.interfacelayer.dto.objectDTO.CustomerDTO;
 import com.backend.store.interfacelayer.dto.request.CreateTicketRequest;
+import com.backend.store.interfacelayer.dto.request.PrintTicketRequest;
+import com.backend.store.interfacelayer.service.QRCode.IQRCodeService;
 import com.backend.store.interfacelayer.service.ticket.ICreateTicketService;
+import com.google.zxing.WriterException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
+
+import java.io.IOException;
 
 @Service
 @RequiredArgsConstructor
@@ -21,10 +27,12 @@ public class CreateTicketService implements ICreateTicketService {
     private final CreateTicketUseCase createTicketUseCase;
     private final ModelMapper modelMapper;
     private final IAuthenticationService authenticationService;
+    private final IQRCodeService qrCodeService;
+    private final KafkaTemplate<String,PrintTicketRequest> printTicketKafkaTemplate;
 
     @Override
     @KafkaListener(id = "consumer-store-order-created",topics = "order-created")
-    public Ticket bookingTicket(CreateTicketRequest request) {
+    public Ticket bookingTicket(CreateTicketRequest request) throws IOException, WriterException {
         String customerName;
         String customerEmail;
         log.info(request.toString());
@@ -48,6 +56,28 @@ public class CreateTicketService implements ICreateTicketService {
                 .seatIds(request.getSeatIds())
                 .price(request.getPrice())
                 .build();
-        return createTicketUseCase.execute(model);
+        Ticket ticket = createTicketUseCase.execute(model);
+
+        PrintTicketRequest printTicketRequest = toPrintTicketRequest(ticket);
+
+        printTicketKafkaTemplate.send("printTicket", printTicketRequest);
+
+        return ticket;
+    }
+
+
+    private PrintTicketRequest toPrintTicketRequest(Ticket ticket) throws IOException, WriterException {
+        PrintTicketRequest printTicketRequest = new PrintTicketRequest();
+        printTicketRequest.setQrCode(qrCodeService.generateBase64QRCode(ticket.getId().toString()));
+        printTicketRequest.setCustomerName(ticket.getCustomerName());
+        printTicketRequest.setEmail(ticket.getEmail());
+        printTicketRequest.setSeatName(ticket.getTicketSeats()
+                .stream()
+                .map(ticketSeat -> ticketSeat.getSeat().getSeatNumber())
+                .toList());
+        printTicketRequest.setTrainName(ticket.getSchedule().getTrain().getTrainName());
+        printTicketRequest.setDepartureStation(ticket.getDepartureStation().getName());
+        printTicketRequest.setArrivalStation(ticket.getArrivalStation().getName());
+        return printTicketRequest;
     }
 }

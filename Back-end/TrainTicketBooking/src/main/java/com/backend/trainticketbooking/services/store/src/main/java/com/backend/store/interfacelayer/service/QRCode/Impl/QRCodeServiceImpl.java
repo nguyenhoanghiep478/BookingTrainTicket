@@ -17,12 +17,12 @@ import java.awt.image.RenderedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Base64;
 
 @Service
 @RequiredArgsConstructor
 public class QRCodeServiceImpl implements IQRCodeService {
 
-    private final ITicketService ticketService;
 
     @Override
     public byte[] generateQRCode(String text) throws WriterException, IOException {
@@ -59,10 +59,16 @@ public class QRCodeServiceImpl implements IQRCodeService {
 
         try {
             Result result = reader.decode(bitmap);
-            ticketService.updateStatusAfterScanQR(result.getText());
+
             return result.getText();
         } catch (ReaderException e) {
             return "Error reading QR code";
         }
+    }
+
+    @Override
+    public String generateBase64QRCode(String text) throws WriterException, IOException {
+        byte[] qrImage = generateQRCode(text);
+        return Base64.getEncoder().encodeToString(qrImage);
     }
 }

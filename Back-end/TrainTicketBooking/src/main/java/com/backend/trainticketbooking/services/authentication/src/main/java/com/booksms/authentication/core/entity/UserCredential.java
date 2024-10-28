@@ -3,6 +3,7 @@ package com.booksms.authentication.core.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.Set;
 
 @Entity
@@ -21,8 +22,11 @@ public class UserCredential extends AbstractEntity{
     private String phone;
     private Integer address;
     private String password;
-    private boolean isVerified;
-    private boolean isFirstVisit;
+    private Boolean isVerified;
+    private Boolean isFirstVisit;
+    private Boolean isBlocked;
+    private Integer failAttempt;
+    private LocalDateTime lockTime;
     @ManyToMany
     @JoinTable(
             name = "user_role",

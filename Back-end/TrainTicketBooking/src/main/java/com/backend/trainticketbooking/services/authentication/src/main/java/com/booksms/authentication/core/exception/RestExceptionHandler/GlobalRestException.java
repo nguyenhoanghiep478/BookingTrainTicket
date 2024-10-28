@@ -1,7 +1,9 @@
 package com.booksms.authentication.core.exception.RestExceptionHandler;
 
 import com.booksms.authentication.core.exception.*;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -15,20 +17,45 @@ import static com.booksms.authentication.core.exception.Error.*;
 public class GlobalRestException {
     private final String contentType= "application/json";
 
-    @ExceptionHandler(EmailExistedException.class)
-    public ResponseEntity<ExceptionDTO> bookNotFoundException(EmailExistedException e) {
+
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<ExceptionDTO> handleCustomException(RuntimeException e) {
+        int code = 500;
+        String description = "An unexpected error occurred";
+        HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
+
+        if (e instanceof CustomException customException) {
+            status = customException.getHttpStatus();
+            code = customException.getCode();
+            description = customException.getDescription();
+        }
+
         return ResponseEntity
-                .status(EMAIL_EXISTED.getHttpStatus())
+                .status(status)
                 .header("Content-Type", contentType)
                 .body(
-                       ExceptionDTO.builder()
-                               .code(EMAIL_EXISTED.getCode())
-                               .errorDescription(EMAIL_EXISTED.getDescription())
-                               .error(e.getMessage())
-                               .build()
+                        ExceptionDTO.builder()
+                                .code(code)
+                                .errorDescription(description)
+                                .error(e.getMessage())
+                                .build()
                 );
-
     }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ExceptionDTO> handleBadCredentials(BadCredentialsException e) {
+        return ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED) // 401 Unauthorized
+                .header("Content-Type", contentType)
+                .body(
+                        ExceptionDTO.builder()
+                                .code(401)
+                                .errorDescription("Invalid username or password") // Thông báo lỗi tùy chỉnh
+                                .error(e.getMessage())
+                                .build()
+                );
+    }
+
 
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -41,11 +68,11 @@ public class GlobalRestException {
                 .status(INVALID_ARGUMENT.getHttpStatus())
                 .header("Content-Type",contentType)
                 .body(
-                      ExceptionDTO.builder()
-                              .code(INVALID_ARGUMENT.getCode())
-                              .errorDescription(INVALID_ARGUMENT.getDescription())
-                              .validationErrors(validationErrors)
-                              .build()
+                        ExceptionDTO.builder()
+                                .code(INVALID_ARGUMENT.getCode())
+                                .errorDescription(INVALID_ARGUMENT.getDescription())
+                                .validationErrors(validationErrors)
+                                .build()
                 )
                 ;
     }

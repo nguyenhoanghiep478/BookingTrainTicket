@@ -9,5 +9,5 @@ public interface IQRCodeService {
 
     String readQRCode(byte[] imageBytes) throws IOException;
 
-
+    String generateBase64QRCode(String text) throws WriterException, IOException;
 }
