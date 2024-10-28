@@ -22,10 +22,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TicketController {
     private final ITicketService ticketService;
-    private final IQRCodeService qrCodeService;
 
     @PostMapping("/create")
-    public ResponseEntity<?> bookingTicket(@RequestBody @Valid CreateTicketRequest request) {
+    public ResponseEntity<?> bookingTicket(@RequestBody @Valid CreateTicketRequest request) throws IOException, WriterException {
         TicketDTO response = ticketService.bookingTicket(request);
         return ResponseEntity.ok(ResponseDTO.builder()
                 .status(200)
@@ -45,7 +44,7 @@ public class TicketController {
 
     @GetMapping("/create-qr")
     public ResponseEntity<?> createQRCode(@RequestParam("ticket_id") Integer ticketId) throws IOException, WriterException {
-        byte[] qrCode = qrCodeService.generateQRCode(String.valueOf(ticketId));
+        byte[] qrCode = ticketService.generateQRCode(String.valueOf(ticketId));
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.IMAGE_PNG);
         return ResponseEntity.ok().headers(headers).body(qrCode);
@@ -54,7 +53,7 @@ public class TicketController {
     @PostMapping("/read-qr")
     public ResponseEntity<String> readQRCode(@RequestParam MultipartFile qr) throws IOException {
         byte[] qrBytes = qr.getBytes();
-        String result = qrCodeService.readQRCode(qrBytes);
+        String result = ticketService.readQRCode(qrBytes);
         return ResponseEntity.ok(result);
     }
 }

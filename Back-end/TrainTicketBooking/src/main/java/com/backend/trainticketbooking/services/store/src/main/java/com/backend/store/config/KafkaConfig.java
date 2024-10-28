@@ -17,4 +17,9 @@ public class KafkaConfig {
     public JsonMessageConverter jsonMessageConverter() {
         return new JsonMessageConverter();
     }
+
+    @Bean
+    public NewTopic printTicketTopic(){
+        return new NewTopic("printTicket", 1, (short) 1);
+    }
 }

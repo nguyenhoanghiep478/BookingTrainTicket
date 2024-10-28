@@ -6,10 +6,7 @@ import com.booksms.marketing.core.domain.exception.InvalidToken;
 import com.booksms.marketing.infrastructure.serviceGateway.ICustomerService;
 import com.booksms.marketing.interfaceLayer.dto.ResponseOrderCreated;
 import com.booksms.marketing.interfaceLayer.dto.VerifyUserDTO;
-import com.booksms.marketing.interfaceLayer.dto.request.EmailRequest;
-import com.booksms.marketing.interfaceLayer.dto.request.NewUserRegister;
-import com.booksms.marketing.interfaceLayer.dto.request.NotificationsDepartureTime;
-import com.booksms.marketing.interfaceLayer.dto.request.UserDTO;
+import com.booksms.marketing.interfaceLayer.dto.request.*;
 import com.booksms.marketing.interfaceLayer.service.IEmailService;
 import com.booksms.marketing.interfaceLayer.service.RedisNewUserService;
 import jakarta.mail.internet.MimeMessage;
@@ -161,6 +158,20 @@ public class EmailService implements IEmailService {
             this.redisNewUserService.save(generateVerifyToken, request, oneHours);
 
         }
+    }
+
+    @KafkaListener(id = "consumer-print-ticket-marketing",topics = "printTicket")
+    public void printTicket(PrintTicketRequest printTicketRequest){
+        log.info(printTicketRequest.toString());
+        Context context = new Context();
+        context.setVariable("customerName", printTicketRequest.getCustomerName());
+        context.setVariable("trainName", printTicketRequest.getTrainName());
+        context.setVariable("seatName",printTicketRequest.getSeatName());
+        context.setVariable("departureTime",printTicketRequest.getDepartureTime());
+        context.setVariable("qrCode",printTicketRequest.getQrCode());
+        context.setVariable("arrivalStationName",printTicketRequest.getArrivalStation());
+        context.setVariable("departureStationName",printTicketRequest.getDepartureStation());
+        sendMimeMessageMail("ticket", printTicketRequest.getEmail(), context,"ticket");
     }
 
     @Override
