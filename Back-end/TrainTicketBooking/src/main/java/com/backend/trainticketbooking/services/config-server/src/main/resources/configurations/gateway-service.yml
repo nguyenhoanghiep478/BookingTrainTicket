@@ -68,6 +68,12 @@ spring:
             - Path=/api/v1/station/**
           filters:
             - AuthenticationFilter
+        - id: station-service
+          uri: lb:http://STORE-SERVICE
+          predicates:
+            - Path=/api/v1/monitoring/**
+          filters:
+            - AuthenticationFilter
         - id: marketing-service
           uri: lb:http://MARKETING-SERVICE
           predicates:

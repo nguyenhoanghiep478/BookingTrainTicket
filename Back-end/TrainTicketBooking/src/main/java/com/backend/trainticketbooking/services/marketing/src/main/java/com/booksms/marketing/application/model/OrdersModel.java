@@ -17,6 +17,7 @@ public class OrdersModel {
     private OrderType orderType;
     private Status status;
     private int customerId;
+    private String customerEmail;
     private BigDecimal totalPrice;
     private List<OrderItemModel> orderItems;
     private String paymentMethod;

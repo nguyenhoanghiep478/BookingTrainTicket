@@ -9,6 +9,7 @@ import com.backend.store.interfacelayer.dto.response.CreateTrainResponse;
 import com.backend.store.interfacelayer.service.train.ITrainService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,6 +18,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/train")
 @RequiredArgsConstructor
+@Slf4j
 public class TrainController {
     private final ITrainService trainService;
     @PostMapping("/create")
@@ -32,6 +34,7 @@ public class TrainController {
 
     @PutMapping("/add-railcars")
     public ResponseEntity<?> addRailcar(@RequestBody @Valid ModifiedRailcarsToTrainRequest request) {
+        log.info(request.getTrainId().toString());
         ModifiedRailcarsToTrainResponse response = trainService.addRailcars(request);
         return ResponseEntity.ok(ResponseDTO.builder()
                 .status(200)

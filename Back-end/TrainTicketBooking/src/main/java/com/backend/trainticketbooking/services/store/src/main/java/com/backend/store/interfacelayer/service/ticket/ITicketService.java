@@ -9,4 +9,6 @@ public interface ITicketService {
     TicketDTO bookingTicket(CreateTicketRequest request);
 
     List<TicketDTO> getAll();
+
+    boolean updateStatusAfterScanQR(String text);
 }

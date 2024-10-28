@@ -29,8 +29,7 @@ public class Schedule extends AbstractEntity {
     @JoinColumn(name = "route_id")
     private Route route;
 
-    @OneToMany(mappedBy = "schedule")
+    @OneToMany(mappedBy = "schedule",cascade = CascadeType.ALL)
     private List<Ticket> tickets;
-
 
 }

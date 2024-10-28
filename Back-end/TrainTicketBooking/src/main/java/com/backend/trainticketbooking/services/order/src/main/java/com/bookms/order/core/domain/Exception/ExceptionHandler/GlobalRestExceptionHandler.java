@@ -1,7 +1,9 @@
 package com.bookms.order.core.domain.Exception.ExceptionHandler;
 
+import com.bookms.order.core.domain.Exception.Error;
 import com.bookms.order.core.domain.Exception.ExceptionDTO;
 import com.bookms.order.core.domain.Exception.InSufficientQuantityException;
+import com.bookms.order.core.domain.Exception.InvalidToken;
 import com.bookms.order.core.domain.Exception.OrderExistException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -62,5 +64,17 @@ public class GlobalRestExceptionHandler {
                                 .build()
                 )
                 ;
+    }
+    @ExceptionHandler(InvalidToken.class)
+    public ResponseEntity<ExceptionDTO> methodArgumentNotValidException(InvalidToken e) {
+        return ResponseEntity.status(INVALID_TOKEN_EXCEPTION.getHttpStatus())
+                .header("Content-Type",contentType)
+                .body(
+                        ExceptionDTO.builder()
+                                .code(INVALID_TOKEN_EXCEPTION.getCode())
+                                .errorDescription(e.getMessage())
+                                .build()
+                );
+
     }
 }

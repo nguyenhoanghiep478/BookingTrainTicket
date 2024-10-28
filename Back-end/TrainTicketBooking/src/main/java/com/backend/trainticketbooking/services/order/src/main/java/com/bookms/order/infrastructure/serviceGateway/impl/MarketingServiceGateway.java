@@ -16,12 +16,18 @@ public class MarketingServiceGateway {
 
     public Boolean validateToken(Long token) {
        log.info(token.toString());
-       ResponseEntity<ResponseDTO> response = marketingClient.validateToken(VerifyUserDTO.builder()
-                       .email(null)
-                       .token(token)
-               .build());
-       ResponseDTO body = response.getBody();
-        assert body != null;
-        return body.getResult().equals("successful");
+       try {
+           ResponseEntity<ResponseDTO> response = marketingClient.validateToken(VerifyUserDTO.builder()
+                   .email(null)
+                   .token(token)
+                   .build());
+           ResponseDTO body = response.getBody();
+           assert body != null;
+           return body.getResult().equals("successful");
+       }catch (Exception e) {
+           log.error(e.getMessage());
+           return false;
+       }
+
     }
 }

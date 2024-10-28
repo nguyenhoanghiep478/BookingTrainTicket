@@ -41,7 +41,11 @@ public class FindSeatUseCase {
     }
 
     public List<Seat> findInIdsAndAvailableSeatsAtStation(List<Integer> ids,Integer scheduleId,Integer departureStationId){
+
+
         List<Integer> idsAvailable = seatRepository.checkSeatsAtStation(ids,scheduleId,departureStationId);
+
+
         if(idsAvailable.isEmpty() || idsAvailable.size() != ids.size()){
             List<Integer> idsNotAvailable = ids.stream().filter(id -> !idsAvailable.contains(id)).toList();
             throw new SeatInUseException("The following seat IDs not available: " + idsNotAvailable);

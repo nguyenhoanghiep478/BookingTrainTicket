@@ -1,21 +1,20 @@
 CREATE TABLE Orders (
                         id SERIAL PRIMARY KEY,
                         order_number BIGINT NOT NULL UNIQUE,
-                        order_type VARCHAR(255) NOT NULL,
                         status VARCHAR(255) NOT NULL,
-                        customer_id INT NOT NULL,
-                        payment_id INT not null,
+                        customer_id INT,
+                        ticket_id INT not null,
+                        payment_id INT,
                         total_price DECIMAL(19, 2) NOT NULL,
-                        payment_method VARCHAR(255) NOT NULL,
+                        payment_method VARCHAR(255),
                         created_date TIMESTAMP,
                         last_modified_date TIMESTAMP,
-                        UNIQUE (order_number)
+                        UNIQUE (order_number,customer_id)
 );
-CREATE TABLE order_items (
+CREATE TABLE order_item (
                              id SERIAL PRIMARY KEY,
                              order_id INT NOT NULL,
-                             book_id INT NOT NULL,
-                             total_quantity INT NOT NULL,
+                             seat_id INT NOT NULL,
                              price DECIMAL(19, 2) NOT NULL,
                              last_modified_date TIMESTAMP,
                              created_date TIMESTAMP,

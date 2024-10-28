@@ -17,5 +17,6 @@ public class TrainModel {
     private TrainType trainType;
     private Integer capacity;
     private Integer totalRailCars;
+    private Integer currentStationId;
     private Set<Integer> railcarIds;
 }

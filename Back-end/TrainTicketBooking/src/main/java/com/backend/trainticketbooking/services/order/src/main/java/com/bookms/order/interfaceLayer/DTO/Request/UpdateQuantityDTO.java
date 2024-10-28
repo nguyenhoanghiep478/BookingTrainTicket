@@ -1,6 +1,5 @@
 package com.bookms.order.interfaceLayer.DTO.Request;
 
-import com.bookms.order.core.domain.Entity.OrderType;
 import lombok.*;
 
 @Getter
@@ -11,5 +10,4 @@ import lombok.*;
 public class UpdateQuantityDTO {
     private int id;
     private int quantity;
-    private OrderType type;
 }

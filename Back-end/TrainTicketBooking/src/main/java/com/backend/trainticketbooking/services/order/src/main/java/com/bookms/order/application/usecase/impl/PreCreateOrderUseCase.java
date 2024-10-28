@@ -1,13 +1,15 @@
 package com.bookms.order.application.usecase.impl;
 
 import com.bookms.order.application.BaseUseCase;
-import com.bookms.order.application.model.BookModel;
 import com.bookms.order.application.model.OrdersModel;
-import com.bookms.order.core.domain.Entity.Orders;
+import com.bookms.order.application.model.SeatModel;
+import com.bookms.order.core.domain.Entity.Order;
+import com.bookms.order.core.domain.Entity.Status;
 import com.bookms.order.core.domain.Exception.OrderExistException;
 import com.bookms.order.core.domain.Exception.PriceNotTheSameException;
 import com.bookms.order.core.domain.Exception.TotalPriceNotTheSameException;
 import com.bookms.order.core.domain.Repository.IOrderRepository;
+import com.bookms.order.infrastructure.serviceGateway.IStoreServiceGateway;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -15,54 +17,56 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class PreCreateOrderUseCase implements BaseUseCase<OrdersModel, OrdersModel>{
     private final IOrderRepository orderRepository;
-    private final FindBookUtils findBookUtils;
+    private final IStoreServiceGateway serviceGateway;
+
 
     @Override
     public OrdersModel execute(OrdersModel orders) {
-        orders.setOrderItems(findBookUtils.toSet(orders.getOrderItems()));
         if(orders.getOrderNumber() != null){
-            Optional<Orders> order = orderRepository.findByOrderNumber(orders.getOrderNumber());
+            Optional<Order> order = orderRepository.findByOrderNumber(orders.getOrderNumber());
             if(order.isPresent()){
                 throw new OrderExistException("order number already exist");
             }
         }
 
-        List<BookModel> bookModels = findBookUtils.getBookModels(orders);
+        List<SeatModel> seatModels = serviceGateway.getSeatsAvailableInSystem(orders);
 
-        BigDecimal totalPrice =  validOrder(orders,bookModels);
+        BigDecimal totalPrice =  validOrder(orders,seatModels);
         orders.setTotalPrice(totalPrice);
+        Random random = new Random();
+        orders.setTicketId(Math.abs(random.nextInt()));
 
 
-
-        for(int i = 0 ; i < bookModels.size() ; i++){
-            orders.getOrderItems().get(i).setName(bookModels.get(i).getName());
+        for(int i = 0 ; i < seatModels.size() ; i++){
+            orders.getOrderItems().get(i).setName(seatModels.get(i).getSeatNumber());
         }
 
-        orders.setBookModels(bookModels);
+        orders.setSeatModels(seatModels);
+        orders.setStatus(Status.PENDING);
         return orders;
     }
 
 
 
-    private BigDecimal validOrder(OrdersModel order, List<BookModel> bookModels){
+    private BigDecimal validOrder(OrdersModel order, List<SeatModel> seatModels){
         BigDecimal totalPrice = BigDecimal.ZERO;
         for(int i = 0 ; i<order.getOrderItems().size() ; i++){
-            BigDecimal price = bookModels.get(i).getPrice().stripTrailingZeros();
+            BigDecimal price = seatModels.get(i).getPrice().stripTrailingZeros();
             BigDecimal orderPrice = order.getOrderItems().get(i).getPrice().stripTrailingZeros();
             if(!price.equals(orderPrice) ){
-                throw new PriceNotTheSameException(String.format("price for item %s not the same with store",bookModels.get(i).getName()));
+                throw new PriceNotTheSameException(String.format("price for item %s not the same with store",seatModels.get(i).getSeatNumber()));
             }
-            totalPrice = totalPrice.add(price.multiply(BigDecimal.valueOf(order.getOrderItems().get(i).getTotalQuantity())));
+            totalPrice = totalPrice.add(price);
 
         }
         if(order.getTotalPrice()!=null){
-            totalPrice = totalPrice.add(BigDecimal.valueOf(order.getShipmentFee()));
             totalPrice = totalPrice.stripTrailingZeros();
             order.setTotalPrice(order.getTotalPrice().stripTrailingZeros());
             if(!totalPrice.equals(order.getTotalPrice())){

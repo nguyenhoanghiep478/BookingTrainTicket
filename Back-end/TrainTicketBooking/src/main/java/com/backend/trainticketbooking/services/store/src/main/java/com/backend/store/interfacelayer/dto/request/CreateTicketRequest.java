@@ -14,6 +14,8 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class CreateTicketRequest {
+    private Integer ticketId;
+    private Integer id;
     @NotNull(message = "Seat is required")
     private List<Integer> seatIds;
     @NotNull(message = "Departure station is required")
@@ -24,4 +26,9 @@ public class CreateTicketRequest {
     private BigDecimal price;
     @NotNull(message = "Schedule is required")
     private Integer scheduleId;
+    @NotNull(message = "Customer name is required")
+    private String customerName;
+    @NotNull(message = "Customer email is required")
+    private String customerEmail;
+    private Integer customerId;
 }

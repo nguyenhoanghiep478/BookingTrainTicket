@@ -1,5 +1,6 @@
 package com.booksms.authentication.config;
 
+import com.booksms.authentication.interfaceLayer.service.impl.CustomOauth2UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,6 +23,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class AuthConfiguration {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final CustomOauth2UserService customOauth2UserService;
+    private final Oauth2SuccessHandler oauth2SuccessHandler;
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
@@ -37,6 +40,12 @@ public class AuthConfiguration {
                         ).permitAll()
                         .anyRequest()
                         .authenticated()
+                )
+                .oauth2Login(oauth2->oauth2
+                        .userInfoEndpoint(userInfo->userInfo
+                                .userService(customOauth2UserService)
+                        )
+                        .successHandler(oauth2SuccessHandler)
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

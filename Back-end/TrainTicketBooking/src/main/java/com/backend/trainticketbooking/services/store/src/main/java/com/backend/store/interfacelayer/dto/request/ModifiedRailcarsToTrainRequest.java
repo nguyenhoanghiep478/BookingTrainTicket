@@ -11,4 +11,5 @@ public class ModifiedRailcarsToTrainRequest {
     Integer trainId;
     @NotNull(message = "railcars id are required")
     Set<Integer> railcarIds;
+
 }

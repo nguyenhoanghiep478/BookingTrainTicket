@@ -1,5 +1,6 @@
 package com.backend.store.interfacelayer.dto.objectDTO;
 
+import com.backend.store.core.domain.state.TrainStatus;
 import com.backend.store.core.domain.state.TrainType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,4 +21,6 @@ public class TrainDTO {
     private TrainType trainType;
     private Integer capacity;
     private Integer totalRailCars;
+    private TrainStatus trainStatus;
+    private String currentStation;
 }
