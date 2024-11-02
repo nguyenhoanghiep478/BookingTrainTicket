@@ -31,8 +31,8 @@ public class MonitoringController {
     }
 
     @GetMapping("/get-seat-available-in-ids")
-    public ResponseEntity<?> getSeatAvailableById(@RequestParam List<Integer> ids,@RequestParam Integer scheduleId,@RequestParam Integer departureStationId) {
-        List<SeatDTO> response = seatService.checkSeat(ids,scheduleId,departureStationId);
+    public ResponseEntity<?> getSeatAvailableById(@RequestParam List<Integer> ids,@RequestParam Integer scheduleId,@RequestParam Integer departureStationId,@RequestParam Integer arrivalStationId) {
+        List<SeatDTO> response = seatService.checkSeat(ids,scheduleId,departureStationId,arrivalStationId);
         return ResponseEntity.ok(ResponseDTO.builder()
                 .status(200)
                 .message(List.of("check seat successful"))

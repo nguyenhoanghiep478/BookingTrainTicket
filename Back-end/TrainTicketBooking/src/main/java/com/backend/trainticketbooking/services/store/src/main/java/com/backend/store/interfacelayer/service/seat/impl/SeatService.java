@@ -18,8 +18,8 @@ public class SeatService implements ISeatService {
     private final ModelMapper modelMapper;
 
     @Override
-    public List<SeatDTO> checkSeat(List<Integer> ids,Integer scheduleId,Integer departureStationId) {
-        List<Seat> seats = findSeatService.findAvailableSeatInIds(ids,scheduleId,departureStationId);
+    public List<SeatDTO> checkSeat(List<Integer> ids,Integer scheduleId,Integer departureStationId,Integer arrivalStationId) {
+        List<Seat> seats = findSeatService.findAvailableSeatInIds(ids,scheduleId,departureStationId,arrivalStationId);
         return seats.stream().map(seat -> modelMapper.map(seat, SeatDTO.class)).toList();
     }
 

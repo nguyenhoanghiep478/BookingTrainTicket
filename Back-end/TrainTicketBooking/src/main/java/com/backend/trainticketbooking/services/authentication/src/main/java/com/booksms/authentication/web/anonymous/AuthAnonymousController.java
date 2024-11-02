@@ -3,6 +3,7 @@ package com.booksms.authentication.web.anonymous;
 import com.booksms.authentication.interfaceLayer.DTO.Request.*;
 import com.booksms.authentication.interfaceLayer.DTO.Response.AuthResponse;
 import com.booksms.authentication.interfaceLayer.DTO.Response.ResponseDTO;
+import com.booksms.authentication.interfaceLayer.DTO.Response.UserResponseDTO;
 import com.booksms.authentication.interfaceLayer.service.IAuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collections;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/auth/anonymous")
@@ -64,6 +66,14 @@ public class AuthAnonymousController {
                 ;
     }
 
-
+    @GetMapping("/get-all-user")
+    public ResponseEntity<?> getAllUser() {
+        List<UserResponseDTO> response = authService.getAll();
+        return ResponseEntity.ok(ResponseDTO.builder()
+                .status(200)
+                .message(Collections.singletonList("get all user successful"))
+                .result(response)
+                .build());
+    }
 
 }

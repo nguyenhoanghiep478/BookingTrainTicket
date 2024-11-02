@@ -79,6 +79,7 @@ public class UpdateTicketUseCase {
                             ticketModel.getSeatIds()
                             ,schedule.getId()
                             ,departureStation.getId()
+                            , arrivalStation.getId()
                     );
             AtomicInteger index = new AtomicInteger(0);
             List<TicketSeat> ticketSeats = ticket.getTicketSeats().stream().map(ticketSeat -> {

@@ -14,4 +14,6 @@ public interface IScheduleService {
 
 
     ScheduleDTO toShortScheduleDTO(Schedule schedule);
+
+    List<ScheduleDTO> findRoundTrip(Integer departureStationId, Integer arrivalStationId,Integer scheduleId);
 }

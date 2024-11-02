@@ -1,3 +1,8 @@
+springdoc:
+  swagger-ui:
+    path: /api/v1/store/anonymous/swagger-ui.html
+  api-docs:
+    path: /api/v1/store/anonymous/v3/api-docs
 spring:
   web:
     resources:

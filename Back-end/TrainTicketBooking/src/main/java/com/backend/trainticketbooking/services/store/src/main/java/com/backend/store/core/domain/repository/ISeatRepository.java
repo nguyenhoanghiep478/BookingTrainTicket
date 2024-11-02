@@ -4,6 +4,7 @@ import com.backend.store.application.model.Criteria;
 import com.backend.store.core.domain.entity.train.Seat;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -18,7 +19,9 @@ public interface ISeatRepository {
 
     List<Objects> findByNativeQuery(String sql, List<Integer> ids);
 
-    List<Integer> checkSeatsAtStation(List<Integer> seatIds,Integer scheduleId ,Integer stationId);
+    List<Integer> checkSeatsAtStation(List<Integer> seatIds,Integer scheduleId ,Integer departureStationId,Integer arrivalStationId);
 
     List<Object[]> findTotalAvailableSeatAtStation(Integer scheduleId);
+
+    List<Object[]> findAvailableSeatGroupByRailcarAt(Integer departureStationId, Integer arrivalStationId, Integer scheduleId);
 }

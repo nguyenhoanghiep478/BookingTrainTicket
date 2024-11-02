@@ -39,6 +39,12 @@ public class FindStationUseCase {
                     .toList();
             throw new StationNotExistException("The following station IDs do not exist: " + stationNotExist);
         }
+        if(stations.get(0).getId() < ids.get(0)){
+            stations.sort((o1, o2) -> o2.getId() - o1.getId());
+        }else if (stations.get(0).getId() > ids.get(0)){
+            stations.sort((o1, o2) -> o1.getId() - o2.getId());
+        }
+
         return stations;
     }
 

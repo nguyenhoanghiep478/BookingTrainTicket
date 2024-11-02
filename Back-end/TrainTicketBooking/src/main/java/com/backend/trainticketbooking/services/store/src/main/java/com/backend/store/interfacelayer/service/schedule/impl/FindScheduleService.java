@@ -83,5 +83,12 @@ public class FindScheduleService implements IFindScheduleService {
         return notificationRequests;
     }
 
+    @Override
+    public List<Schedule> findRoundTrip(Integer departureStationId, Integer arrivalStationId,Integer scheduleId) {
+       List<Schedule> schedules = findScheduleUseCase.findRoundTrip(departureStationId,arrivalStationId,scheduleId);
+
+        return schedules.isEmpty() ? null : schedules;
+    }
+
 
 }

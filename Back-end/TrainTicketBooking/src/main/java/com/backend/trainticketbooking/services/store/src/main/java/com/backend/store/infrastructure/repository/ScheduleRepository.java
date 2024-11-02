@@ -7,6 +7,7 @@ import com.backend.store.core.domain.repository.IScheduleRepository;
 import com.backend.store.infrastructure.jpaRepository.ScheduleJpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
 
@@ -43,5 +44,10 @@ public class ScheduleRepository extends AbstractRepository<Schedule> implements 
         return scheduleJpaRepository.findById(id).orElseThrow(
                 () -> new ScheduleNotExistException(String.format("Schedule with id %s not found", id))
         );
+    }
+
+    @Override
+    public List<Object[]> findReturnTrip(Integer departureStationId, Integer arrivalStationId, Timestamp arrivalTime) {
+        return scheduleJpaRepository.findReturnSchedule(departureStationId,arrivalStationId,arrivalTime);
     }
 }

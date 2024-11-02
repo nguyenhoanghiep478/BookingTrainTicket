@@ -32,7 +32,7 @@ public class ScheduleController {
         List<ScheduleDTO> response = scheduleService.findScheduleById(id);
         return ResponseEntity.ok(ResponseDTO.builder()
                 .status(200)
-                .message(List.of("create schedule successful"))
+                .message(List.of("get schedule successful"))
                 .result(response)
                 .build());
     }

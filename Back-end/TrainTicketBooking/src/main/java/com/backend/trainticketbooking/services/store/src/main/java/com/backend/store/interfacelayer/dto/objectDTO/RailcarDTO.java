@@ -1,4 +1,4 @@
-package com.backend.store.application.model;
+package com.backend.store.interfacelayer.dto.objectDTO;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,9 +11,9 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class AvailableSeatNumberForSchedule {
-    private Integer scheduleId;
+public class RailcarDTO {
     private String railcarName;
-    private List<String> seatNumbers;
-    private List<String> seatIds;
+    private Integer totalSeat;
+    private Integer totalSeatAvailable;
+    private List<ShortSeatDTO> seats;
 }

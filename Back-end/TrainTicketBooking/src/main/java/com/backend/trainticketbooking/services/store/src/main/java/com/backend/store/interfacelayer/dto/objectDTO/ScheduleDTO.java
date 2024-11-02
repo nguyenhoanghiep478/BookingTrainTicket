@@ -18,5 +18,5 @@ public class ScheduleDTO {
     private Timestamp departureTime;
     private Timestamp arrivalTime;
     private String trainName;
-    private List<String> seatNumbersAvailable;
+    private List<RailcarDTO> railcars;
 }

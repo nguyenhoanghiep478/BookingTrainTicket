@@ -1,13 +1,16 @@
 package com.backend.store.core.domain.entity.train;
 
 import com.backend.store.core.domain.entity.AbstractEntity;
+import com.backend.store.core.domain.repository.ISeatRepository;
 import com.backend.store.core.domain.state.RailcarType;
 import com.backend.store.core.domain.state.SeatClass;
+import com.backend.store.infrastructure.repository.SeatRepository;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.LinkedHashSet;
+import java.util.Random;
 import java.util.Set;
 
 @Entity
@@ -54,8 +57,8 @@ public class Railcar extends AbstractEntity {
             seat.setSeatClass(railcarType.getSeatClass());
             seat.setIsAvailable(false);
             seat.setRailcar(this);
+            seat.setSeatNumber("");
             seat.setSeatType(railcarType.getSeatType());
-            seat.setSeatNumber(String.format("%s.1%s",name,i < 10 ? "0"+i : i));
             seats.add(seat);
         }
 

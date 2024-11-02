@@ -11,5 +11,5 @@ import java.util.List;
 @FeignClient(name = "store-service",url = "http://localhost:5555/api/v1/monitoring")
 public interface StoreClient {
     @GetMapping("/get-seat-available-in-ids")
-    ResponseEntity<ResponseDTO> getSeatAvailableById(@RequestParam List<Integer> ids, @RequestParam Integer scheduleId, @RequestParam Integer departureStationId);
+    ResponseEntity<ResponseDTO> getSeatAvailableById(@RequestParam List<Integer> ids, @RequestParam Integer scheduleId, @RequestParam Integer departureStationId,@RequestParam Integer arrivalStationId);
 }

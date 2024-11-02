@@ -19,4 +19,13 @@ public class FindRailcarUseCase {
         }
         return railcarRepository.findBy(criteria);
     }
+
+    public Railcar findByRailcarName(String railcarName) {
+        Criteria criteria = Criteria.builder()
+                .key("name")
+                .operation(":")
+                .value(railcarName)
+                .build();
+        return execute(List.of(criteria)).get(0);
+    }
 }

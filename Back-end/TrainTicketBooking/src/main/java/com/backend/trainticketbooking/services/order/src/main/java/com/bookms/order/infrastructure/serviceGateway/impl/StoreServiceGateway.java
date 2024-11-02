@@ -34,7 +34,7 @@ public class StoreServiceGateway implements IStoreServiceGateway {
     public List<SeatModel> getSeatsAvailableInSystem(OrdersModel orders) {
         try{
            List<Integer> seatIds = orders.getOrderItems().stream().map(OrderItemModel::getSeatId).toList();
-           ResponseEntity<ResponseDTO> response = storeClient.getSeatAvailableById(seatIds,orders.getScheduleId(), orders.getDepartureStationId());
+           ResponseEntity<ResponseDTO> response = storeClient.getSeatAvailableById(seatIds,orders.getScheduleId(), orders.getDepartureStationId(), orders.getArrivalStationId());
            ResponseDTO responseDTO = response.getBody();
             List<SeatModel> seatModels = null;
             Map<List<SeatModel>, Object> map = null;

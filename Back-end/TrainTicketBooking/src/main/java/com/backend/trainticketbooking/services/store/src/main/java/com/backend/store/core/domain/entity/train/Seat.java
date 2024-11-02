@@ -44,4 +44,11 @@ public class Seat extends AbstractEntity {
         if(price != null)return;
         this.price = seatClass.getPrice();
     }
+
+    @PostPersist
+    protected void setSeatNumberAfterPersist() {
+        if(this.seatNumber.equals("") && this.railcar != null){
+            this.seatNumber = String.format("%s.%s",railcar.getName(),id);
+        }
+    }
 }

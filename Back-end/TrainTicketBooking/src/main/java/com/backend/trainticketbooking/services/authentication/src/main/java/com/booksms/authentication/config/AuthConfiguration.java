@@ -40,12 +40,15 @@ public class AuthConfiguration {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/api/v1/book/anonymous/*",
                                 "/api/v1/auth/anonymous/*",
                                 "/api/v1/marketing/anonymous/*",
                                 "/api/v1/payment/anonymous/*",
                                 "/api/v1/order/anonymous/*",
-                                "/api/v1/distributor/anonymous/*"
+                                "/api/v1/distributor/anonymous/*",
+                                "/api/v1/auth/anonymous/v3/api-docs/**",
+                                "/api/v1/auth/anonymous/v3/api-docs/public/**",
+                                "/api/v1/auth/anonymous/swagger-ui/**",
+                                "/api/v1/auth/anonymous/swagger-ui.html"
                         ).permitAll()
                         .anyRequest()
                         .authenticated()

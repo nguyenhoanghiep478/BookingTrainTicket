@@ -31,7 +31,7 @@ public class CreateTicketUseCase {
 
     public Ticket execute(final TicketModel model){
         Schedule schedule = findScheduleUseCase.findById(model.getScheduleId());
-        List<Seat> seat = findSeatUseCase.findInIdsAndAvailableSeatsAtStation(model.getSeatIds(),model.getScheduleId(),model.getDepartureStationId());
+        List<Seat> seat = findSeatUseCase.findInIdsAndAvailableSeatsAtStation(model.getSeatIds(),model.getScheduleId(),model.getDepartureStationId(), model.getArrivalStationId());
         List<Integer> stationIds = List.of(model.getDepartureStationId(), model.getArrivalStationId());
         List<Station> stations = findStationUseCase.getListStationInIds(stationIds);
         Ticket ticket = map(schedule,model,stations,seat);

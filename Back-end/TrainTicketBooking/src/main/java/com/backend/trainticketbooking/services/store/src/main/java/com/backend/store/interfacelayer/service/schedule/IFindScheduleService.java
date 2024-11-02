@@ -15,4 +15,6 @@ public interface IFindScheduleService {
     List<ScheduleStation> findByDepartureTimesBetween(LocalDateTime now, LocalDateTime oneHourFromNow);
 
     List<NotificationRequest> findTicketBetweenDepartureTime(LocalDateTime now, LocalDateTime oneHourFromNow);
+
+    List<Schedule> findRoundTrip(Integer departureStationId, Integer arrivalStationId,Integer scheduleId);
 }

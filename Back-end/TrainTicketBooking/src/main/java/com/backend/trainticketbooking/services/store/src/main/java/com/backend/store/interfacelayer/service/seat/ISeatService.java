@@ -6,5 +6,5 @@ import com.backend.store.interfacelayer.dto.objectDTO.TicketDTO;
 import java.util.List;
 
 public interface ISeatService {
-    List<SeatDTO> checkSeat(List<Integer> ids,Integer scheduleId,Integer departureStationId);
+    List<SeatDTO> checkSeat(List<Integer> ids,Integer scheduleId,Integer departureStationId,Integer arrivalStationId);
 }

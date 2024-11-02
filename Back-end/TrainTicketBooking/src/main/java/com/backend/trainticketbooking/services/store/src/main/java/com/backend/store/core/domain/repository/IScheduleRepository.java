@@ -3,6 +3,7 @@ package com.backend.store.core.domain.repository;
 import com.backend.store.application.model.Criteria;
 import com.backend.store.core.domain.entity.schedule.Schedule;
 
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,4 +17,6 @@ public interface IScheduleRepository {
     List<Schedule> findBy(List<Criteria> criteria);
 
    Schedule findById(int id);
+
+    List<Object[]> findReturnTrip(Integer departureStationId, Integer arrivalStationId, Timestamp arrivalTime);
 }
