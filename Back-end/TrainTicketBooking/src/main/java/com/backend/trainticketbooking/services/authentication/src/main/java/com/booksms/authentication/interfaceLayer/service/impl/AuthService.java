@@ -106,6 +106,12 @@ public class AuthService  implements IAuthService {
 
     @Override
     public AuthResponse login(AuthRequest request) {
+        UserCredential userCredential = findUserUseCase.execute(List.of(SearchUserCriteria.builder()
+                        .key("email")
+                        .operation(":")
+                        .value(request.getEmail())
+                        .build()))
+                .get(0);
         try {
             Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                     request.getEmail(),
@@ -113,13 +119,6 @@ public class AuthService  implements IAuthService {
             ));
 
             if(authentication.isAuthenticated()){
-
-                UserCredential userCredential = findUserUseCase.execute(List.of(SearchUserCriteria.builder()
-                                .key("email")
-                                .operation(":")
-                                .value(request.getEmail())
-                                .build()))
-                        .get(0);
                 handleFailedAttemptLoginUseCase.resetFailedAttempts(userCredential);
                 if(userCredential.getIsBlocked()){
                     throw new UserBlockedException(String.format("User %s is blocked", userCredential.getEmail()));
@@ -148,16 +147,9 @@ public class AuthService  implements IAuthService {
                 throw new RuntimeException("Authentication Failed");
             }
         }catch (BadCredentialsException e){
-            UserCredential userCredential = findUserUseCase.execute(List.of(SearchUserCriteria.builder()
-                            .key("email")
-                            .operation(":")
-                            .value(request.getEmail())
-                            .build()))
-                    .get(0);
             handleFailedAttemptLoginUseCase.increaseFailedAttempts(userCredential);
             if (userCredential.getFailAttempt() >= MAX_FAILED_ATTEMPTS) {
                 handleFailedAttemptLoginUseCase.lockUser(userCredential);
-
                 throw new UserBlockedException("you has been blocked because login failed too much time");
             }
         }
