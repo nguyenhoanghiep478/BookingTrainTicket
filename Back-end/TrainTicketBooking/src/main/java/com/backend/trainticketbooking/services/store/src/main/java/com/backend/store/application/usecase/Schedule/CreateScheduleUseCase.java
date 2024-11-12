@@ -3,10 +3,7 @@ package com.backend.store.application.usecase.Schedule;
 import com.backend.store.application.model.ScheduleModel;
 import com.backend.store.application.usecase.Route.FindRouteUseCase;
 import com.backend.store.application.usecase.Train.FindTrainUseCase;
-import com.backend.store.core.domain.entity.schedule.Route;
-import com.backend.store.core.domain.entity.schedule.Schedule;
-import com.backend.store.core.domain.entity.schedule.ScheduleStation;
-import com.backend.store.core.domain.entity.schedule.Station;
+import com.backend.store.core.domain.entity.schedule.*;
 import com.backend.store.core.domain.entity.train.Train;
 import com.backend.store.core.domain.exception.ScheduleExistedException;
 import com.backend.store.core.domain.exception.TrainNotAvailableException;
@@ -21,6 +18,7 @@ import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
 import java.time.*;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -38,9 +36,9 @@ public class CreateScheduleUseCase {
                 }
 
                 Route route = findRouteUseCase.findById(scheduleModel.getRouteId());
+                route.getRouteStations().sort((o1, o2) -> o1.getStopOrder() - o2.getStopOrder());
                 Station startStation = route.getRouteStations().get(0).getStation();
-
-                if(train.getCurrentStation() != null &&!train.getCurrentStation().equals(startStation) ){
+                if(train.getCurrentStation() != null && !train.getCurrentStation().equals(startStation) ){
                     throw new TrainNotAvailableException(String.format("Train %s is not at the current station",train.getTrainName()));
                 }
 

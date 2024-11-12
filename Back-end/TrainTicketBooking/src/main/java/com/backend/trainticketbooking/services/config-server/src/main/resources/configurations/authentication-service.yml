@@ -13,9 +13,9 @@ openapi:
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/authentication
-    username: hiep
-    password: 123456
+    url: ${DB_URL}/authentication${ADDITIONAL_PROP}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
   jpa:
     show-sql: true
     hibernate:

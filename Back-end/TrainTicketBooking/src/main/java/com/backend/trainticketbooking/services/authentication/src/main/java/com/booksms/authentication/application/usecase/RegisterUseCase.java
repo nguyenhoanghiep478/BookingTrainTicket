@@ -38,6 +38,9 @@ public class RegisterUseCase implements BaseUsecase<UserModel,UserModel> {
         userCredential.setEmail(userModel.getEmail());
         userCredential.setPassword(userModel.getPassword());
         userCredential.setIsFirstVisit(true);
+        userCredential.setIsBlocked(false);
+        userCredential.setIsVerified(false);
+        userCredential.setFailAttempt(0);
         return userCredential;
     }
 }

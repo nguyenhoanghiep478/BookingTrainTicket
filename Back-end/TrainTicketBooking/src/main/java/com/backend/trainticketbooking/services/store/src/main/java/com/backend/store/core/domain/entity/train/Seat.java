@@ -5,12 +5,16 @@ import com.backend.store.core.domain.entity.Booking.Ticket;
 import com.backend.store.core.domain.entity.schedule.TicketSeat;
 import com.backend.store.core.domain.state.SeatClass;
 import com.backend.store.core.domain.state.SeatType;
+import com.backend.store.core.domain.state.StaticVar;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
+
+import static com.backend.store.core.domain.state.StaticVar.*;
 
 @Entity
 @Getter
@@ -30,6 +34,10 @@ public class Seat extends AbstractEntity {
     private Boolean isAvailable = true;
     @Column(nullable = false)
     private BigDecimal price;
+    @Transient
+    private LocalDateTime holdTime;
+    @Version
+    private Long version;
 
     @OneToMany(mappedBy = "seat")
     private List<TicketSeat> ticket;
@@ -50,5 +58,12 @@ public class Seat extends AbstractEntity {
         if(this.seatNumber.equals("") && this.railcar != null){
             this.seatNumber = String.format("%s.%s",railcar.getName(),id);
         }
+    }
+
+    public Boolean isHolding(){
+        if(holdTime == null){
+            return false;
+        }
+        return holdTime.isBefore(LocalDateTime.now().minusMinutes(HOLDING_SEAT_MINUTES));
     }
 }

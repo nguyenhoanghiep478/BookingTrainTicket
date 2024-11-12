@@ -12,7 +12,5 @@ import lombok.NoArgsConstructor;
 public class CreateResetPasswordRequest {
     @NotNull(message = "email is required for reset password")
     private String email;
-    @NotNull(message = "id is required for reset password")
-    private Integer id;
 
 }

@@ -31,6 +31,7 @@ import org.springframework.stereotype.Service;
 
 import javax.security.sasl.AuthenticationException;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 
 import static com.booksms.authentication.core.constant.STATIC_VAR.MAX_FAILED_ATTEMPTS;
@@ -183,6 +184,16 @@ public class AuthService  implements IAuthService {
         return modelMapper.map(findUserUseCase.execute(List.of(fieldId)).get(0), UserDTO.class);
     }
 
+    public UserDTO findByEmail(String email) {
+        SearchUserCriteria fieldId=  SearchUserCriteria.builder()
+                .key("email")
+                .operation(":")
+                .value(String.valueOf(email))
+                .build();
+
+        return modelMapper.map(findUserUseCase.execute(List.of(fieldId)).get(0), UserDTO.class);
+    }
+
     @Override
     public AuthResponse refershToken(String jwt, String refreshToken) throws AuthenticationException {
         String token = jwt.substring(7);
@@ -209,14 +220,15 @@ public class AuthService  implements IAuthService {
 
     @Override
     public void createResetPasswordRequest(CreateResetPasswordRequest request) {
-        UserDTO userDTO = findById(request.getId());
+        UserDTO userDTO = findByEmail(request.getEmail());
         if(userDTO == null){
-            throw new UserNotFoundException(String.format("User with id %s not found", request.getId()));
+            throw new UserNotFoundException("email not found");
         }
-        if(!userDTO.getEmail().equals(request.getEmail())){
-            throw new BadRequestException("email address does not match");
-        }
-        redisService.setValue(userDTO.getId(),userDTO);
+        Random random = new Random();
+        int randomInt = Math.abs(random.nextInt());
+
+        redisService.setValue(randomInt,userDTO);
+        userDTO.setId(randomInt);
         kafkaResetPasswordTemplate.send("ResetPassword",userDTO);
 
     }

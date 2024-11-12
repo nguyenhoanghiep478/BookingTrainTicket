@@ -10,5 +10,6 @@ public class  StaticVar {
    public static final Long BREAK_TIME_MINUTES = 30L;
    public static final Long NOTIFICATIONS_DURATION_SECONDS = 60000L;
    public static final Integer MAXIMUM_SEAT_PER_RAILCAR = 60;
+   public static final Integer HOLDING_SEAT_MINUTES = 15;
 
 }
