@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface IFindStationService {
     List<Station> getAll();
+
+    Station findByName(String departureStation);
 }

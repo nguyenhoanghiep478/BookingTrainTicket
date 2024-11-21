@@ -13,6 +13,9 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class ScheduleDTO {
+    private Integer id;
+    private Integer departureStationId;
+    private Integer arrivalStationId;
     private String departureStationName;
     private String arrivalStationName;
     private Timestamp departureTime;

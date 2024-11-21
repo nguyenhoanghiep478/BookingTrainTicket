@@ -1,5 +1,6 @@
 package com.booksms.authentication.web.controller;
 
+import com.booksms.authentication.interfaceLayer.DTO.Request.DeleteUserRequest;
 import com.booksms.authentication.interfaceLayer.DTO.Request.UserDTO;
 import com.booksms.authentication.interfaceLayer.DTO.Response.AuthResponse;
 import com.booksms.authentication.interfaceLayer.DTO.Response.ResponseDTO;
@@ -34,6 +35,25 @@ public class AuthController {
                 .build());
     }
 
+    @GetMapping("/log-out")
+    public ResponseEntity<?> logout(@RequestHeader(value = HttpHeaders.AUTHORIZATION) String token
+            ,@CookieValue(value = "refresh-token",required = false) String refreshToken) {
+        authService.logOut(token,refreshToken);
+        return ResponseEntity.ok(ResponseDTO.builder()
+                .status(200)
+                .message(Collections.singletonList("log out successful"))
+                .build());
+    }
+
+    @PostMapping("/hard-delete")
+    public ResponseEntity<?> hardDeleteUser(@RequestBody DeleteUserRequest request){
+        authService.hardDeleteById(request);
+        return ResponseEntity.ok(ResponseDTO.builder()
+                .status(200)
+                .message(Collections.singletonList("delete user successful"))
+                .build());
+    }
+
     @GetMapping("/get-all-user")
     public ResponseEntity<?> getAllUser() {
         List<UserResponseDTO> response = authService.getAll();
@@ -60,16 +80,5 @@ public class AuthController {
         return authService.validateToken(token);
     }
 
-    @GetMapping("/refresh-token")
-    public ResponseEntity<?> refreshToken(@RequestHeader("Authorization") String token,@CookieValue(name = "refresh-token",defaultValue = "") String refreshToken) throws AuthenticationException {
-        AuthResponse response = authService.refershToken(token,refreshToken);
-        return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE,response.getRefreshToken().getValue())
-                .body(ResponseDTO.builder()
-                        .status(200)
-                        .message(Collections.singletonList("login successful"))
-                        .result(response)
-                        .build())
-                ;
-    }
+
 }

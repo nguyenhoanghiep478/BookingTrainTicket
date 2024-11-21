@@ -47,7 +47,13 @@ public class ScheduleRepository extends AbstractRepository<Schedule> implements 
     }
 
     @Override
-    public List<Object[]> findReturnTrip(Integer departureStationId, Integer arrivalStationId, Timestamp arrivalTime) {
-        return scheduleJpaRepository.findReturnSchedule(departureStationId,arrivalStationId,arrivalTime);
+    public List<Object[]> findScheduleByDepartAndArrival(Integer departureStationId, Integer arrivalStationId, Timestamp arrivalTime) {
+        return scheduleJpaRepository.findScheduleByDepartAndArrival(departureStationId,arrivalStationId,arrivalTime);
+    }
+
+    @Override
+    public List<Object[]> findScheduleByDepartAndArrivalName(String departureStationId, String arrivalStationId, Timestamp arrivalTime) {
+        List<Object[]> objects =  scheduleJpaRepository.findScheduleByDepartAndArrivalName(departureStationId,arrivalStationId,arrivalTime);
+        return objects;
     }
 }

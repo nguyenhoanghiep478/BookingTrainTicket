@@ -16,10 +16,13 @@ import com.backend.store.interfacelayer.service.schedule.ICreateScheduleService;
 import com.backend.store.interfacelayer.service.schedule.IFindScheduleService;
 import com.backend.store.interfacelayer.service.schedule.IScheduleService;
 import com.backend.store.interfacelayer.service.seat.IFindSeatService;
+import com.backend.store.interfacelayer.service.station.impl.FindStationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -29,6 +32,7 @@ public class ScheduleService implements IScheduleService {
     private final ICreateScheduleService createScheduleService;
     private final IFindScheduleService findScheduleService;
     private final IFindSeatService findSeatService;
+    private final FindStationService findStationService;
     private Integer totalAvailableSeats;
     @Override
     public CreateScheduleResponse create(CreateScheduleRequest request) {
@@ -72,7 +76,6 @@ public class ScheduleService implements IScheduleService {
             return null;
         }
         List<ScheduleDTO> scheduleDTOS = new ArrayList<>();
-
         for(Schedule schedule : schedules){
             // swap arrival and departure because we want to move back from old trip
             scheduleDTOS.add(toScheduleDTOWithOnlyAt(schedule,arrivalStationId,departureStationId,schedule.getId()));
@@ -81,12 +84,46 @@ public class ScheduleService implements IScheduleService {
         return scheduleDTOS;
     }
 
+    @Override
+    public List<ScheduleDTO> findScheduleByDepartAndArrival(Integer departureStationId, Integer arrivalStationId) {
+        List<Schedule> schedules = findScheduleService.findByDepartAndArrival(departureStationId,arrivalStationId);
+        if(schedules == null){
+            return null;
+        }
+        List<ScheduleDTO> scheduleDTOS = new ArrayList<>();
+        for(Schedule schedule : schedules){
+            scheduleDTOS.add(toScheduleDTOWithOnlyAt(schedule,departureStationId,arrivalStationId,schedule.getId()));
+        }
+
+        return scheduleDTOS;
+    }
+
+    @Override
+    public List<ScheduleDTO> findScheduleByDepartAndArrivalAndDepartureTime(Integer departureStationId, Integer arrivalStationId, Timestamp departureTime) {
+        List<ScheduleDTO> scheduleDTOS = findScheduleByDepartAndArrival(departureStationId,arrivalStationId);
+        if(departureTime == null){
+            return scheduleDTOS;
+        }
+        return scheduleDTOS.stream().filter(scheduleDTO -> scheduleDTO.getDepartureTime().after(departureTime)).toList();
+    }
+
+    @Override
+    public List<ScheduleDTO> findScheduleByDepartAndArrivalNameAndDepartureTime(String departureStation, String arrivalStation, Timestamp sqlTimestamp) {
+        Station departureStationObject = findStationService.findByName(departureStation);
+        Station arrivalStationObject = findStationService.findByName(arrivalStation);
+
+        return findScheduleByDepartAndArrivalAndDepartureTime(departureStationObject.getId(),arrivalStationObject.getId(),sqlTimestamp);
+    }
+
     private ScheduleDTO toScheduleDTOWithOnlyAt(Schedule schedule,Integer departureStationId,Integer arrivalStationId,Integer scheduleId
     ) {
         ScheduleStation departureScheduleStation = schedule.getScheduleStations().stream().filter(scheduleStation -> scheduleStation.getStation().getId().equals(departureStationId)).findFirst().get();
         ScheduleStation arrivalScheduleStation = schedule.getScheduleStations().stream().filter(scheduleStation -> scheduleStation.getStation().getId().equals(arrivalStationId)).findFirst().get();
         List<RailcarDTO> railcarDTOS = findSeatService.getListRailcarWithSeatAvailableIn(departureStationId, arrivalStationId, scheduleId);
         return ScheduleDTO.builder()
+                .id(schedule.getId())
+                .departureStationId(departureStationId)
+                .arrivalStationId(arrivalStationId)
                 .arrivalStationName(arrivalScheduleStation.getStation().getName())
                 .departureStationName(departureScheduleStation.getStation().getName())
                 .trainName(schedule.getTrain().getTrainName())

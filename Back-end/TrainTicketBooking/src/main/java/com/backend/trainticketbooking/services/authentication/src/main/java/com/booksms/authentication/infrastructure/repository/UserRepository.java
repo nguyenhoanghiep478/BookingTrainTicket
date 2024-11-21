@@ -54,4 +54,9 @@ public class UserRepository extends AbstractRepository<UserCredential> implement
     public List<UserCredential> findAll() {
         return repository.findAll();
     }
+
+    @Override
+    public void deleteByUser(UserCredential userCredential) {
+        repository.delete(userCredential);
+    }
 }

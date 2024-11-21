@@ -57,4 +57,13 @@ public class FindStationUseCase {
 
         return execute(List.of(criteria)).get(0);
     }
+
+    public Station getStationByName(String departureStation) {
+        Criteria criteria = Criteria.builder()
+                .key("name")
+                .operation(":")
+                .value(departureStation)
+                .build();
+        return execute(List.of(criteria)).get(0);
+    }
 }

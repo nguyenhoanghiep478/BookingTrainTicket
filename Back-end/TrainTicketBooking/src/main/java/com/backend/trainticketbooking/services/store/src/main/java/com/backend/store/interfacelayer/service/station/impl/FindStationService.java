@@ -17,4 +17,9 @@ public class FindStationService implements IFindStationService {
     public List<Station> getAll() {
         return findStationUseCase.execute(null);
     }
+
+    @Override
+    public Station findByName(String departureStation) {
+        return findStationUseCase.getStationByName(departureStation);
+    }
 }

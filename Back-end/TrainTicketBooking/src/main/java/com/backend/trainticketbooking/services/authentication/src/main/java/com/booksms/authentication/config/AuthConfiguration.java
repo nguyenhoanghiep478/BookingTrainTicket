@@ -1,5 +1,6 @@
 package com.booksms.authentication.config;
 
+import com.booksms.authentication.core.exception.AccessDeniedHandle;
 import com.booksms.authentication.core.exception.SpringSecurityException.CustomEntryPoint;
 import com.booksms.authentication.interfaceLayer.service.impl.CustomOauth2UserService;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +28,7 @@ public class AuthConfiguration {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final CustomOauth2UserService customOauth2UserService;
     private final Oauth2SuccessHandler oauth2SuccessHandler;
-
+    private final AccessDeniedHandle accessDeniedHandle;
     @Bean
     public AuthenticationEntryPoint authenticationEntryPoint() {
         return new CustomEntryPoint();
@@ -50,8 +51,10 @@ public class AuthConfiguration {
                                 "/api/v1/auth/anonymous/swagger-ui/**",
                                 "/api/v1/auth/anonymous/swagger-ui.html"
                         ).permitAll()
-                        .anyRequest()
+                        .requestMatchers("/api/v1/auth/google/*")
                         .authenticated()
+                        .requestMatchers("/api/v1/auth/*").hasAuthority("USER")
+                        .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2->oauth2
                         .userInfoEndpoint(userInfo->userInfo
@@ -59,6 +62,7 @@ public class AuthConfiguration {
                         )
                         .successHandler(oauth2SuccessHandler)
                 )
+                .exceptionHandling(ex -> ex.accessDeniedHandler(accessDeniedHandle))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())

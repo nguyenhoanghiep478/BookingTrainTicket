@@ -12,7 +12,10 @@ public enum Error {
     MISSING_ARGUMENT_EXCEPTION(502,"Missing argument",HttpStatus.BAD_REQUEST),
     USER_BLOCKED_EXCEPTION(423,"User blocked",HttpStatus.LOCKED),
     USER_NOT_VERIFIED_EXCEPTION(403,"User unverified",HttpStatus.FORBIDDEN),
+    TOKEN_IS_BLACKLISTED_EXCEPTION(403,"Token is in blacklist",HttpStatus.FORBIDDEN),
+    INVALID_SESSION_LOGIN_EXCEPTION(403,"This account logged in other place",HttpStatus.UNAUTHORIZED),
     INVALID_ARGUMENT(500,"Invalid argument",HttpStatus.BAD_REQUEST),
+    TOKEN_EXPIRATION_EXCEPTION(401,"token expried",HttpStatus.UNAUTHORIZED),
     INTERNAL_ERROR(500,"Internal error,please contact admin",HttpStatus.INTERNAL_SERVER_ERROR);
     ;
 

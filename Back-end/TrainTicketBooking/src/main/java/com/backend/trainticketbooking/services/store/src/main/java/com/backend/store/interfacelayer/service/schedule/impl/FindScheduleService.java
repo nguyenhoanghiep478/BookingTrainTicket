@@ -6,6 +6,7 @@ import com.backend.store.application.usecase.Ticket.FindTicketUseCase;
 import com.backend.store.core.domain.entity.Booking.Ticket;
 import com.backend.store.core.domain.entity.schedule.Schedule;
 import com.backend.store.core.domain.entity.schedule.ScheduleStation;
+import com.backend.store.interfacelayer.dto.objectDTO.ScheduleDTO;
 import com.backend.store.interfacelayer.dto.request.NotificationRequest;
 import com.backend.store.interfacelayer.service.schedule.IFindScheduleService;
 import lombok.RequiredArgsConstructor;
@@ -88,6 +89,18 @@ public class FindScheduleService implements IFindScheduleService {
        List<Schedule> schedules = findScheduleUseCase.findRoundTrip(departureStationId,arrivalStationId,scheduleId);
 
         return schedules.isEmpty() ? null : schedules;
+    }
+
+    @Override
+    public List<Schedule> findByDepartAndArrival(Integer departureStationId, Integer arrivalStationId) {
+        List<Schedule> schedules = findScheduleUseCase.findByDepartAndArrival(departureStationId,arrivalStationId);
+        return schedules == null ? null : schedules;
+    }
+
+    @Override
+    public List<Schedule> findByDepartAndArrivalName(String departureStation, String arrivalStation,Timestamp departureTime) {
+        List<Schedule> schedules = findScheduleUseCase.findByDepartAndArrivalName(departureStation,arrivalStation,departureTime);
+        return schedules == null ? null : schedules;
     }
 
 

@@ -13,7 +13,6 @@ import java.util.Random;
 public class CreateSellOrderUseCase {
     private final IOrderRepository orderRepository;
     public Order execute(Order order){
-
         Order result =  orderRepository.save(order);
         if(result == null){
             throw new CreateFailedException("create order failed");

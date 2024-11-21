@@ -1,8 +1,10 @@
 package com.booksms.authentication.interfaceLayer.service.impl;
 
 import com.booksms.authentication.core.entity.UserCredential;
+import com.booksms.authentication.interfaceLayer.service.IJwtBlackListService;
 import com.booksms.authentication.interfaceLayer.service.IJwtService;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
@@ -19,7 +21,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class jwtService implements IJwtService {
-
+    private final IJwtBlackListService jwtBlackListService;
 
     @Override
     public String generateToken(UserCredential userCredential,String[] permissions) {
@@ -39,8 +41,20 @@ public class jwtService implements IJwtService {
                 .collect(Collectors.toList());
     }
 
+
+
     public String extractUsername(String token){
         return extractClaims(token,Claims::getSubject);
+    }
+
+    @Override
+    public Boolean isBlacklisted(String token) {
+        return jwtBlackListService.isBlackList(token);
+    }
+
+    @Override
+    public void addToBlacklist(String token) {
+        jwtBlackListService.addToBlackList(token);
     }
 
     @Override
@@ -54,6 +68,11 @@ public class jwtService implements IJwtService {
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24 * 7))
                 .signWith(getSignKey(), SignatureAlgorithm.HS256)
                 .compact();
+    }
+
+    @Override
+    public Integer extractId(String token) {
+        return Integer.parseInt(extractClaims(token,Claims::getId));
     }
 
     @Override
@@ -71,12 +90,14 @@ public class jwtService implements IJwtService {
     }
 
     private Claims extractAllClaims(String token) {
-        return Jwts
-                .parser()
-                .setSigningKey(getSignKey())
-                .build()
-                .parseClaimsJws(token)
-                .getPayload();
+           return Jwts
+                   .parser()
+                   .setSigningKey(getSignKey())
+                   .build()
+                   .parseClaimsJws(token)
+                   .getPayload();
+
+
     }
 
     private String generateToken(Map<String,Object> extraClaims, UserCredential user,String[] permission) {

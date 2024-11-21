@@ -18,5 +18,6 @@ public interface IScheduleRepository {
 
    Schedule findById(int id);
 
-    List<Object[]> findReturnTrip(Integer departureStationId, Integer arrivalStationId, Timestamp arrivalTime);
+    List<Object[]> findScheduleByDepartAndArrival(Integer departureStationId, Integer arrivalStationId, Timestamp arrivalTime);
+    List<Object[]> findScheduleByDepartAndArrivalName(String departureStationId, String arrivalStationId, Timestamp arrivalTime);
 }
