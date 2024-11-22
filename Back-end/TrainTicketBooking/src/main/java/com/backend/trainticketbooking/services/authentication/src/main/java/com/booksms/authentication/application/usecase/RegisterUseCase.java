@@ -2,6 +2,7 @@ package com.booksms.authentication.application.usecase;
 
 import com.booksms.authentication.application.BaseUsecase;
 import com.booksms.authentication.application.model.UserModel;
+import com.booksms.authentication.core.entity.Role;
 import com.booksms.authentication.core.entity.UserCredential;
 import com.booksms.authentication.core.exception.EmailExistedException;
 import com.booksms.authentication.core.exception.RegisterFailException;
@@ -14,6 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class RegisterUseCase implements BaseUsecase<UserModel,UserModel> {
     private final IUserRepository userRepository;
+    private final FindRoleUseCase findRoleUseCase;
+
     @Override
     @Transactional(rollbackFor = Exception.class)
     public UserModel execute(UserModel userModel) {
@@ -37,7 +40,12 @@ public class RegisterUseCase implements BaseUsecase<UserModel,UserModel> {
         userCredential.setPhone(userModel.getPhone());
         userCredential.setEmail(userModel.getEmail());
         userCredential.setPassword(userModel.getPassword());
-        userCredential.setFirstVisit(true);
+        userCredential.setIsFirstVisit(true);
+        userCredential.setIsBlocked(false);
+        userCredential.setIsVerified(false);
+        userCredential.setFailAttempt(0);
+        Role role = findRoleUseCase.findById(4);
+        userCredential.setRoles(role);
         return userCredential;
     }
 }

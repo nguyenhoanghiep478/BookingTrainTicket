@@ -11,10 +11,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class AuthRequest {
 
-    @Email
+    @Email(message = "email must have @ and domain after")
     private String email;
 
-    @NotNull
+    @NotNull(message = "password must not null")
     private String password;
 
 }

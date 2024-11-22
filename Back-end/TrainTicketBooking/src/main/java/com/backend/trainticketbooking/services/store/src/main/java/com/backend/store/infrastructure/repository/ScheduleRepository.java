@@ -1,10 +1,14 @@
 package com.backend.store.infrastructure.repository;
 
+import com.backend.store.application.model.Criteria;
 import com.backend.store.core.domain.entity.schedule.Schedule;
+import com.backend.store.core.domain.exception.ScheduleNotExistException;
 import com.backend.store.core.domain.repository.IScheduleRepository;
 import com.backend.store.infrastructure.jpaRepository.ScheduleJpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.sql.Timestamp;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -23,5 +27,33 @@ public class ScheduleRepository extends AbstractRepository<Schedule> implements 
     @Override
     public Schedule save(Schedule newSchedule) {
         return scheduleJpaRepository.save(newSchedule);
+    }
+
+    @Override
+    public List<Schedule> findAll() {
+        return scheduleJpaRepository.findAll();
+    }
+
+    @Override
+    public List<Schedule> findBy(List<Criteria> criteria) {
+        return abstractSearch(criteria);
+    }
+
+    @Override
+    public Schedule findById(int id) {
+        return scheduleJpaRepository.findById(id).orElseThrow(
+                () -> new ScheduleNotExistException(String.format("Schedule with id %s not found", id))
+        );
+    }
+
+    @Override
+    public List<Object[]> findScheduleByDepartAndArrival(Integer departureStationId, Integer arrivalStationId, Timestamp arrivalTime) {
+        return scheduleJpaRepository.findScheduleByDepartAndArrival(departureStationId,arrivalStationId,arrivalTime);
+    }
+
+    @Override
+    public List<Object[]> findScheduleByDepartAndArrivalName(String departureStationId, String arrivalStationId, Timestamp arrivalTime) {
+        List<Object[]> objects =  scheduleJpaRepository.findScheduleByDepartAndArrivalName(departureStationId,arrivalStationId,arrivalTime);
+        return objects;
     }
 }

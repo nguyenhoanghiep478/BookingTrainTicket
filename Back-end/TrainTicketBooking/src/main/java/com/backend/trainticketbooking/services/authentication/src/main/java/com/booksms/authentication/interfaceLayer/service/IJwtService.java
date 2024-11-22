@@ -12,6 +12,8 @@ public interface IJwtService {
     Boolean isExpiredToken(String token);
     List<SimpleGrantedAuthority> extractAuthorities(String token);
     String extractUsername(String token);
-
+    Boolean isBlacklisted(String token);
+    void addToBlacklist(String token);
     String generateRefreshToken(UserCredential userCredential, String[] permissionsByUserCredential);
+    Integer extractId(String token);
 }

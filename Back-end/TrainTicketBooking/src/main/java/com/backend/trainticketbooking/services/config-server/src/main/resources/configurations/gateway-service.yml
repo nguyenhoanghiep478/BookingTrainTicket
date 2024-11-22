@@ -1,3 +1,31 @@
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    enable: true
+    path: /swagger-ui.html
+    urls:
+      - url: /v3/api-docs/customer-service
+        name: Customer Service
+      - url: /v3/api-docs/order-service
+        name: Order Service
+      - url: /v3/api-docs/railcar-service
+        name: Railcar Service
+      - url: /v3/api-docs/train-service
+        name: Train Service
+      - url: /v3/api-docs/ticket-service
+        name: Ticket Service
+      - url: /v3/api-docs/route-service
+        name: Route Service
+      - url: /v3/api-docs/schedule-service
+        name: Schedule Service
+      - url: /v3/api-docs/station-service
+        name: Station Service
+      - url: /v3/api-docs/authentication-service
+        name: Authentication Service
+      - url: /v3/api-docs/role-service
+        name: Role Service
+
 spring:
   cloud:
     gateway:
@@ -32,6 +60,12 @@ spring:
             - Path=/api/v1/order/**
           filters:
             - AuthenticationFilter
+        - id: store-service
+          uri: lb:http://STORE-SERVICE
+          predicates:
+            - Path=/api/v1/store/**
+          filters:
+            - AuthenticationFilter
         - id: railcar-service
           uri: lb:http://STORE-SERVICE
           predicates:
@@ -42,6 +76,12 @@ spring:
           uri: lb:http://STORE-SERVICE
           predicates:
             - Path=/api/v1/train/**
+          filters:
+            - AuthenticationFilter
+        - id: ticket-service
+          uri: lb:http://STORE-SERVICE
+          predicates:
+            - Path=/api/v1/ticket/**
           filters:
             - AuthenticationFilter
         - id: route-service
@@ -60,6 +100,12 @@ spring:
           uri: lb:http://STORE-SERVICE
           predicates:
             - Path=/api/v1/station/**
+          filters:
+            - AuthenticationFilter
+        - id: station-service
+          uri: lb:http://STORE-SERVICE
+          predicates:
+            - Path=/api/v1/monitoring/**
           filters:
             - AuthenticationFilter
         - id: marketing-service

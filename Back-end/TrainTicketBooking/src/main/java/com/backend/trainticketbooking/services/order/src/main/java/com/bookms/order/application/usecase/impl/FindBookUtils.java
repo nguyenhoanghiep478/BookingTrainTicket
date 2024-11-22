@@ -17,7 +17,7 @@ public class FindBookUtils {
     private final IBookServiceGateway bookServiceGateway;
 
     public List<BookModel> getBookModels(OrdersModel orders){
-        Set<Integer> booksId = orders.getOrderItems().stream().map(OrderItemModel::getBookId).collect(Collectors.toCollection(LinkedHashSet::new));
+        Set<Integer> booksId = orders.getOrderItems().stream().map(OrderItemModel::getSeatId).collect(Collectors.toCollection(LinkedHashSet::new));
 
         List<BookModel> result = bookServiceGateway.findAllBookWithListId(booksId);
         if(result.isEmpty()){
@@ -30,14 +30,11 @@ public class FindBookUtils {
         List<OrderItemModel> result = new ArrayList<>();
         Hashtable<Integer,Integer> setBookId = new Hashtable<>();
         for(int i = 0 ; i < orderItems.size() ; i++){
-            if(!setBookId.containsKey(orderItems.get(i).getBookId())){
-                setBookId.put(orderItems.get(i).getBookId(),i);
+            if(!setBookId.containsKey(orderItems.get(i).getSeatId())){
+                setBookId.put(orderItems.get(i).getSeatId(),i);
                 result.add(orderItems.get(i));
             }else{
-                int indexDuplicate = setBookId.get(orderItems.get(i).getBookId());
-                int currentQuantity = result.get(indexDuplicate).getTotalQuantity();
-                int newQuantity = orderItems.get(i).getTotalQuantity() + currentQuantity;
-                result.get(setBookId.get(orderItems.get(indexDuplicate).getBookId())).setTotalQuantity(newQuantity);
+                int indexDuplicate = setBookId.get(orderItems.get(i).getSeatId());
             }
         }
         return result;

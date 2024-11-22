@@ -1,8 +1,7 @@
 package com.bookms.order.core.domain.Repository;
 
 import com.bookms.order.application.model.Criteria;
-import com.bookms.order.core.domain.Entity.OrderType;
-import com.bookms.order.core.domain.Entity.Orders;
+import com.bookms.order.core.domain.Entity.Order;
 import com.bookms.order.core.domain.Entity.Status;
 
 import java.math.BigDecimal;
@@ -10,31 +9,30 @@ import java.util.List;
 import java.util.Optional;
 
 public interface IOrderRepository {
-    Optional<Orders> findByOrderNumberAndCustomerIdAndOrderType(Long orderNumber, Integer customerId, OrderType orderType);
+    Optional<Order> findByOrderNumberAndCustomerIdAndOrderType(Long orderNumber, Integer customerId);
 
-    Optional<Orders> findByOrderNumberAndCustomerId(Long orderNumber, Integer customerId);
+    Optional<Order> findByOrderNumberAndCustomerId(Long orderNumber, Integer customerId);
 
-    Optional<Orders> findByOrderNumber(Long orderNumber);
+    Optional<Order> findByOrderNumber(Long orderNumber);
 
-    Optional<Orders> findByIdAndOrderNumberAndCustomerIdAndOrderType(Integer id, Long orderNumber, Integer customerId, OrderType orderType);
+    Optional<Order> findByIdAndOrderNumberAndCustomerIdAndOrderType(Integer id, Long orderNumber, Integer customerId);
 
-    Optional<Orders> findById(Integer id);
+    Optional<Order> findById(Integer id);
 
-    List<Orders> findAllByCustomerIdAndOrderTypeAndStatusAndTotalPriceAndPaymentMethod(Integer customerId, OrderType orderType, Status status, BigDecimal totalPrice, String paymentMethod);
+    List<Order> findAllByCustomerIdAndOrderTypeAndStatusAndTotalPriceAndPaymentMethod(Integer customerId, Status status, BigDecimal totalPrice, String paymentMethod);
 
-    List<Orders> findAllByCustomerIdAndOrderTypeAndStatus(Integer customerId, OrderType orderType, Status status);
+    List<Order> findAllByCustomerIdAndOrderTypeAndStatus(Integer customerId, Status status);
 
-    List<Orders> findAllByCustomerIdAndOrderType(Integer customerId, OrderType orderType);
+    List<Order> findAllByCustomerIdAndOrderType(Integer customerId);
 
-    List<Orders> findAllByCustomerId(Integer customerId);
+    List<Order> findAllByCustomerId(Integer customerId);
 
-    List<Orders> findAllByOrderType(OrderType orderType);
 
-    List<Orders> findAll();
+    List<Order> findAll();
 
-    Orders save(Orders orders);
+    Order save(Order order);
 
-    List<Orders> findByCriteria(List<Criteria> criteria);
+    List<Order> findByCriteria(List<Criteria> criteria);
 
     Object findByNativeQuery(String sql);
 }

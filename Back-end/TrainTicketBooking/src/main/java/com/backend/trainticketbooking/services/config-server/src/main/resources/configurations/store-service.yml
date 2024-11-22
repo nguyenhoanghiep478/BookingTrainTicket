@@ -1,12 +1,17 @@
+springdoc:
+  swagger-ui:
+    path: /api/v1/store/anonymous/swagger-ui.html
+  api-docs:
+    path: /api/v1/store/anonymous/v3/api-docs
 spring:
   web:
     resources:
       static-locations: file:upload/book
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/store
-    username: hiep
-    password: 123456
+    url: ${DB_URL}/store${ADDITIONAL_PROP}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
   jpa:
     hibernate:
       ddl-auto: validate

@@ -27,7 +27,6 @@ public class RegisterRequest {
     private String email;
     @Pattern(regexp = "^0[0-9]{9}$", message = "phone number must start by 0 and have 10 number")
     private String phone;
-    private String address;
     @NotNull(message = "password is required")
     @NotEmpty(message = "password is required")
     private String password;

@@ -25,6 +25,7 @@ public class CreateRouteUseCase {
         if(route.isPresent()) {
             throw new RouteExistedException(String.format("Route with name %s already existed", routeModel.getName()));
         }
+
         Route newRoute = map(routeModel);
 
         return routeRepository.save(newRoute);

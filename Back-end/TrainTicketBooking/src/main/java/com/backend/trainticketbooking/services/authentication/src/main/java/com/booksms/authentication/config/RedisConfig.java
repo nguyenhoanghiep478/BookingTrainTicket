@@ -18,7 +18,7 @@ public class RedisConfig {
         RedisStandaloneConfiguration configuration = new RedisStandaloneConfiguration();
         configuration.setHostName("localhost");
         configuration.setPort(6379);
-        configuration.setDatabase(4);
+        configuration.setDatabase(0);
         return new LettuceConnectionFactory(configuration);
     }
 
@@ -30,6 +30,34 @@ public class RedisConfig {
         template.setKeySerializer(new GenericToStringSerializer<>(Integer.class));
         template.setValueSerializer(new Jackson2JsonRedisSerializer<>(Object.class));
         log.info("redis template: {}", template);
+        return template;
+    }
+
+    @Bean
+    public RedisTemplate<String,String> blackList(RedisConnectionFactory redisConnectionFactory) {
+        RedisTemplate<String,String> template = new RedisTemplate<>();
+        template.setConnectionFactory(redisConnectionFactory);
+        template.setKeySerializer(new GenericToStringSerializer<>(String.class));
+        template.setValueSerializer(new Jackson2JsonRedisSerializer<>(String.class));
+        return template;
+    }
+
+
+    @Bean
+    public RedisTemplate<String,Integer> sessionStorage(RedisConnectionFactory redisConnectionFactory) {
+        RedisTemplate<String,Integer> template = new RedisTemplate<>();
+        template.setConnectionFactory(redisConnectionFactory);
+        template.setKeySerializer(new GenericToStringSerializer<>(String.class));
+        template.setValueSerializer(new Jackson2JsonRedisSerializer<>(String.class));
+        return template;
+    }
+
+    @Bean
+    public RedisTemplate<String,Object> userSession(RedisConnectionFactory redisConnectionFactory) {
+        RedisTemplate<String,Object> template = new RedisTemplate<>();
+        template.setConnectionFactory(redisConnectionFactory);
+        template.setKeySerializer(new GenericToStringSerializer<>(String.class));
+        template.setValueSerializer(new Jackson2JsonRedisSerializer<>(String.class));
         return template;
     }
 }

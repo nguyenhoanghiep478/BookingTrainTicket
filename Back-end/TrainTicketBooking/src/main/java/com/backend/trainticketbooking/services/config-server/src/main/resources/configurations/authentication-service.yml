@@ -1,15 +1,37 @@
+springdoc:
+  swagger-ui:
+    path: /api/v1/auth/anonymous/swagger-ui.html
+  api-docs:
+    path: /api/v1/auth/anonymous/v3/api-docs
+openapi:
+  title: Authentication API Document
+  version: 1.0
+  description: Authentication API Service
+  serverURL:
+  serverName: serverTest
+
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/authentication
-    username: hiep
-    password: 123456
+    url: ${DB_URL}/authentication${ADDITIONAL_PROP}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
   jpa:
     show-sql: true
     hibernate:
       ddl-auto: validate
     database: postgresql
     database-platform:  org.hibernate.dialect.PostgreSQLDialect
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            scope:
+              - email
+              - profile
 
   flyway:
     repair: true

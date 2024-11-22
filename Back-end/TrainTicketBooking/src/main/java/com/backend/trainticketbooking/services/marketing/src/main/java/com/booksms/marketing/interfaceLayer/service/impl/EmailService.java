@@ -6,9 +6,7 @@ import com.booksms.marketing.core.domain.exception.InvalidToken;
 import com.booksms.marketing.infrastructure.serviceGateway.ICustomerService;
 import com.booksms.marketing.interfaceLayer.dto.ResponseOrderCreated;
 import com.booksms.marketing.interfaceLayer.dto.VerifyUserDTO;
-import com.booksms.marketing.interfaceLayer.dto.request.EmailRequest;
-import com.booksms.marketing.interfaceLayer.dto.request.NewUserRegister;
-import com.booksms.marketing.interfaceLayer.dto.request.UserDTO;
+import com.booksms.marketing.interfaceLayer.dto.request.*;
 import com.booksms.marketing.interfaceLayer.service.IEmailService;
 import com.booksms.marketing.interfaceLayer.service.RedisNewUserService;
 import jakarta.mail.internet.MimeMessage;
@@ -88,12 +86,18 @@ public class EmailService implements IEmailService {
 
     @KafkaListener(id = "consumer-pre-order-create", topics = "pre-create-order")
     private void sendTokenForOrder(OrdersModel ordersModel) {
+        String email = null;
+        if(ordersModel.getCustomerEmail() == null){
             CustomerModel customer = customerService.getCustomerById(ordersModel.getCustomerId());
+            email = customer.getEmail();
+        }else{
+            email = ordersModel.getCustomerEmail();
+        }
         Long generateVerifyToken =generateToken();
         Context context = getOrderContext(ordersModel);
         context.setVariable("token",generateVerifyToken);
         log.info(String.valueOf(generateVerifyToken));
-        sendMimeMessageMail("preOrderTemplate", customer.getEmail(), context, "Verify order");
+        sendMimeMessageMail("preOrderTemplate", email, context, "Verify order");
 
         Instant now = Instant.now();
         NewUserRegister request = modelMapper.map(ordersModel, NewUserRegister.class);
@@ -156,6 +160,20 @@ public class EmailService implements IEmailService {
         }
     }
 
+    @KafkaListener(id = "consumer-print-ticket-marketing",topics = "printTicket")
+    public void printTicket(PrintTicketRequest printTicketRequest){
+        log.info(printTicketRequest.toString());
+        Context context = new Context();
+        context.setVariable("customerName", printTicketRequest.getCustomerName());
+        context.setVariable("trainName", printTicketRequest.getTrainName());
+        context.setVariable("seatName",printTicketRequest.getSeatName());
+        context.setVariable("departureTime",printTicketRequest.getDepartureTime());
+        context.setVariable("qrCode",printTicketRequest.getQrCode());
+        context.setVariable("arrivalStationName",printTicketRequest.getArrivalStation());
+        context.setVariable("departureStationName",printTicketRequest.getDepartureStation());
+        sendMimeMessageMail("ticket", printTicketRequest.getEmail(), context,"ticket");
+    }
+
     @Override
     public String verifyToken(VerifyUserDTO verifyDTO) {
         log.info(verifyDTO.toString());
@@ -197,5 +215,15 @@ public class EmailService implements IEmailService {
     private Long generateToken(){
         Random random = new Random();
         return 100000 + random.nextLong(900000);
+    }
+
+    @KafkaListener(id = "consumer-ticket-notifications",topics = "notifications")
+    public void sendNotificationDepartureTime(NotificationsDepartureTime notificationsDepartureTime){
+        Context context = new Context();
+        context.setVariable("customerName", notificationsDepartureTime.getCustomerName());
+        context.setVariable("trainName", notificationsDepartureTime.getTrainName());
+        context.setVariable("seatName",notificationsDepartureTime.getSeatName());
+        context.setVariable("departureTime",notificationsDepartureTime.getDepartureTime());
+        sendMimeMessageMail("notificationTemplate", notificationsDepartureTime.getEmail(), context,"Notification Departure Time");
     }
 }

@@ -19,4 +19,14 @@ public class FindRoleUseCase {
         }
         return repository.findByCriteria(criteriaList);
     }
+
+    public Role findById(int id) {
+        SearchUserCriteria criteria = SearchUserCriteria.builder()
+                .key("id")
+                .value(id)
+                .operation(":")
+                .build();
+        List<Role> roles = execute(List.of(criteria));
+        return roles.isEmpty() ? null : roles.get(0);
+    }
 }

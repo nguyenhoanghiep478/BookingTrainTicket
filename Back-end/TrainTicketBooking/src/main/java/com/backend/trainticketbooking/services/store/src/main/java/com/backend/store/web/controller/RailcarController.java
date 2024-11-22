@@ -3,14 +3,12 @@ package com.backend.store.web.controller;
 import com.backend.store.interfacelayer.dto.ResponseDTO;
 import com.backend.store.interfacelayer.dto.request.CreateRailcarRequest;
 import com.backend.store.interfacelayer.dto.response.CreateRailcarResponse;
+import com.backend.store.interfacelayer.dto.response.RailcarDTO;
 import com.backend.store.interfacelayer.service.railcar.IRailcarService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -28,5 +26,15 @@ public class RailcarController {
                         .result(response)
                 .build());
 
+    }
+
+    @GetMapping("/get-all")
+    public ResponseEntity<?> getAll() {
+        List<RailcarDTO> response = railcarService.getAll();
+        return ResponseEntity.ok(ResponseDTO.builder()
+                .status(200)
+                .message(List.of("get all railcar successful"))
+                .result(response)
+                .build());
     }
 }

@@ -3,8 +3,8 @@ package com.bookms.order.interfaceLayer.service.impl;
 import com.bookms.order.application.model.*;
 import com.bookms.order.application.servicegateway.IAuthServiceGateway;
 import com.bookms.order.application.usecase.impl.FindBookUtils;
+import com.bookms.order.core.domain.Entity.Order;
 import com.bookms.order.interfaceLayer.DTO.*;
-import com.bookms.order.core.domain.Entity.Orders;
 import com.bookms.order.interfaceLayer.service.ICreateOrderService;
 import com.bookms.order.interfaceLayer.service.IFindOrderService;
 import com.bookms.order.interfaceLayer.service.IOrderService;
@@ -16,13 +16,11 @@ import com.bookms.order.web.mapper.OrderMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpClientErrorException;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -37,11 +35,11 @@ public class OrderService implements IOrderService {
     @Override
     public List<OrderDTO> findAll() {
         List<OrderDTO> result = new ArrayList<>();
-        List<Orders> orders = findOrderService.findAll();
+        List<Order> orders = findOrderService.findAll();
         if(orders.isEmpty()) {
-           throw new OrderNotFoundException("cannot find any orders");
+           throw new OrderNotFoundException("cannot find any order");
         }
-        for (Orders order : orders) {
+        for (Order order : orders) {
             result.add(modelMapper.map(order, OrderDTO.class));
         }
        return result;
@@ -63,7 +61,7 @@ public class OrderService implements IOrderService {
         try {
            return OrderMapper.toDTO(createOrderService.createOrder(request));
         } catch (HttpClientErrorException.NotFound e) {
-            throw new BookNotFoundException(String.format("Book with id %s not found", request.getOrderItems().get(0).getBookId()));
+            throw new BookNotFoundException(String.format("seat with id %s not found", request.getOrderItems().get(0).getSeatId()));
         } catch (InSufficientQuantityException e) {
             throw new InSufficientQuantityException(e.getMessage());
         } catch (OrderExistException e) {
@@ -97,9 +95,9 @@ public class OrderService implements IOrderService {
 
     @Override
     public List<OrderDTO> findLatest(int amount) {
-        List<Orders> orders = findOrderService.findLatest(amount);
+        List<Order> orders = findOrderService.findLatest(amount);
         List<OrderDTO> result = new ArrayList<>();
-        for(Orders order : orders) {
+        for(Order order : orders) {
             result.add(modelMapper.map(order, OrderDTO.class));
         }
         for(OrderDTO order : result) {
@@ -141,7 +139,6 @@ public class OrderService implements IOrderService {
                     for(int i = 0 ; i < bookModels.size() ; i++){
                         model.getOrderItems().get(i).setName(bookModels.get(i).getName());
                         model.getOrderItems().get(i).setPrice(bookModels.get(i).getPrice());
-                        model.getOrderItems().get(i).setTotalQuantity(orders.getOrderItems().get(i).getTotalQuantity());
                     }
                     return modelMapper.map(model,OrderDTO.class);
                 })

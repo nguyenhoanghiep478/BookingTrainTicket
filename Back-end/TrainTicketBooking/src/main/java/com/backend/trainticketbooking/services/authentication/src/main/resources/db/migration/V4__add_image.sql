@@ -1,0 +1,1 @@
+alter table user_credential add column image varchar(255)

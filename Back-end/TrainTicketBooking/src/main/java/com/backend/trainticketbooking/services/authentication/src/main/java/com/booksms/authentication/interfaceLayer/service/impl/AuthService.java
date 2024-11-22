@@ -3,15 +3,10 @@ package com.booksms.authentication.interfaceLayer.service.impl;
 import com.booksms.authentication.application.model.PermissionModel;
 import com.booksms.authentication.application.model.SearchUserCriteria;
 import com.booksms.authentication.application.model.UserModel;
-import com.booksms.authentication.application.usecase.FindUserUseCase;
-import com.booksms.authentication.application.usecase.GetPermissionUseCase;
-import com.booksms.authentication.application.usecase.RegisterUseCase;
-import com.booksms.authentication.application.usecase.UpdateUserUseCase;
+import com.booksms.authentication.application.usecase.*;
 import com.booksms.authentication.core.entity.Role;
 import com.booksms.authentication.core.entity.UserCredential;
-import com.booksms.authentication.core.exception.EmailExistedException;
-import com.booksms.authentication.core.exception.RegisterFailException;
-import com.booksms.authentication.core.exception.UserNotFoundException;
+import com.booksms.authentication.core.exception.*;
 import com.booksms.authentication.interfaceLayer.DTO.Request.*;
 import com.booksms.authentication.interfaceLayer.DTO.Response.AuthResponse;
 import com.booksms.authentication.interfaceLayer.DTO.Response.UserResponseDTO;
@@ -26,7 +21,9 @@ import org.modelmapper.ModelMapper;
 import org.springframework.http.ResponseCookie;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -34,7 +31,10 @@ import org.springframework.stereotype.Service;
 
 import javax.security.sasl.AuthenticationException;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
+
+import static com.booksms.authentication.core.constant.STATIC_VAR.MAX_FAILED_ATTEMPTS;
 
 @Service
 @AllArgsConstructor
@@ -51,11 +51,13 @@ public class AuthService  implements IAuthService {
     private final KafkaTemplate<String, UserDTO> kafkaResetPasswordTemplate;
     private final UpdateUserUseCase updateUserUseCase;
     private final RedisService redisService;
+    private final HandleFailedAttemptLoginUseCase handleFailedAttemptLoginUseCase;
+    private final HardDeleteUserUseCase hardDeleteUserUseCase;
+
 
     @Override
     public UserDTO register(RegisterRequest request) {
-        try{
-            request.setPassword(passwordEncoder.encode(request.getPassword()));
+           request.setPassword(passwordEncoder.encode(request.getPassword()));
            var user = registerUseCase.execute(modelMapper.map(request, UserModel.class));
            kafkaTemplate.send("UserRegister", NewUserRegister.builder()
                            .firstName(user.getFirstName())
@@ -66,15 +68,6 @@ public class AuthService  implements IAuthService {
                    .build());
            request.setId(user.getId());
            return modelMapper.map(user, UserDTO.class);
-        }catch (EmailExistedException e){
-            log.error(e.getMessage());
-            throw new EmailExistedException(e.getMessage());
-        }catch (RegisterFailException e){
-            throw new RegisterFailException(e.getMessage());
-        }catch (Exception e){
-            log.error(e.getMessage());
-            throw new InternalServerErrorException("please contact with administrator");
-        }
     }
 
     public String generateToken(String username) {
@@ -105,26 +98,60 @@ public class AuthService  implements IAuthService {
     }
 
     @Override
-    public AuthResponse login(AuthRequest request) {
-       Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                request.getEmail(),
-                request.getPassword()
-        ));
+    public AuthResponse login(AuthRequest request) throws InvalidSessionLoginException {
+        UserCredential userCredential = findUserUseCase.execute(List.of(SearchUserCriteria.builder()
+                        .key("email")
+                        .operation(":")
+                        .value(request.getEmail())
+                        .build()))
+                .get(0);
+        if(redisService.isUserWorking(userCredential.getEmail())){
+            throw new InvalidSessionLoginException("User has login in another place");
+        }
 
-       if(authentication.isAuthenticated()){
+        try {
+           authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
+                    request.getEmail(),
+                    request.getPassword()
+            ));
 
-          return AuthResponse.builder()
-                  .accessToken(generateToken(request.getEmail()))
-                  .refreshToken(ResponseCookie.from("refresh-token",generateRefreshToken(request.getEmail()))
-                          .httpOnly(true)
-                          .secure(true)
-                          .path("/")
-                          .build())
-                  .build();
-       }else{
-           throw new RuntimeException("Authentication Failed");
-       }
 
+                handleFailedAttemptLoginUseCase.resetFailedAttempts(userCredential);
+                if(userCredential.getIsBlocked()){
+                    throw new UserBlockedException(String.format("User %s is blocked", userCredential.getEmail()));
+                }
+                if(!userCredential.getIsVerified()){
+                    kafkaTemplate.send("UserRegister", NewUserRegister.builder()
+                            .firstName(userCredential.getFirstName())
+                            .lastName(userCredential.getLastName())
+                            .isVerified(false)
+                            .isFirstVisit(true)
+                            .isBlocked(false)
+                            .recipient(userCredential.getEmail())
+                            .build());
+                    throw new UserNotVerifiedException(String.format("User %s is not verified", userCredential.getEmail()));
+                }
+
+                String accessToken = generateToken(request.getEmail());
+                redisService.addUserSession(userCredential.getEmail(),accessToken);
+                return AuthResponse.builder()
+                        .accessToken(accessToken)
+                        .refreshToken(ResponseCookie.from("refresh-token",generateRefreshToken(request.getEmail()))
+                                .httpOnly(true)
+                                .secure(true)
+                                .path("/")
+                                .build())
+                        .profile(findById(userCredential.getId()))
+                        .build();
+        }catch (BadCredentialsException e){
+            handleFailedAttemptLoginUseCase.increaseFailedAttempts(userCredential);
+            if (userCredential.getFailAttempt() >= MAX_FAILED_ATTEMPTS) {
+                handleFailedAttemptLoginUseCase.lockUser(userCredential);
+                throw new UserBlockedException("you has been blocked because login failed too much time");
+            }
+        }
+
+        throw new BadCredentialsException("please check your email/password");
     }
 
     private String generateRefreshToken(String email) {
@@ -153,14 +180,24 @@ public class AuthService  implements IAuthService {
         return modelMapper.map(findUserUseCase.execute(List.of(fieldId)).get(0), UserDTO.class);
     }
 
+    public UserDTO findByEmail(String email) {
+        SearchUserCriteria fieldId=  SearchUserCriteria.builder()
+                .key("email")
+                .operation(":")
+                .value(String.valueOf(email))
+                .build();
+
+        return modelMapper.map(findUserUseCase.execute(List.of(fieldId)).get(0), UserDTO.class);
+    }
+
     @Override
-    public AuthResponse refershToken(String jwt, String refreshToken) throws AuthenticationException {
-        String token = jwt.substring(7);
-        log.info(token);
-        String id = jwtService.isValidToken(token);
-        if(id == null){
-           throw new AuthenticationException("invalid access token");
-        }
+    public AuthResponse refreshToken(String jwt, String refreshToken) throws AuthenticationException {
+//        String token = jwt.substring(7);
+//        log.info(token);
+//        String id = jwtService.isValidToken(token);
+//        if(id == null){
+//           throw new AuthenticationException("invalid access token");
+//        }
 
         if(jwtService.isExpiredToken(refreshToken)){
             throw new AuthenticationException("invalid refresh token");
@@ -178,22 +215,30 @@ public class AuthService  implements IAuthService {
     }
 
     @Override
-    public void createResetPasswordRequest(CreateResetPasswordRequest request) {
-        UserDTO userDTO = findById(request.getId());
-        if(userDTO == null){
-            throw new UserNotFoundException(String.format("User with id %s not found", request.getId()));
-        }
-        if(!userDTO.getEmail().equals(request.getEmail())){
-            throw new BadRequestException("email address does not match");
-        }
-        redisService.setValue(userDTO.getId(),userDTO);
-        kafkaResetPasswordTemplate.send("ResetPassword",userDTO);
+    public void addUserSession(Integer userId) {
 
+    }
+
+    @Override
+    public void createResetPasswordRequest(CreateResetPasswordRequest request) {
+        UserDTO userDTO = findByEmail(request.getEmail());
+        if(userDTO == null){
+            throw new UserNotFoundException("email not found");
+        }
+        Random random = new Random();
+        int randomInt = Math.abs(random.nextInt());
+
+        redisService.setValue(randomInt,userDTO);
+        userDTO.setId(randomInt);
+        kafkaResetPasswordTemplate.send("ResetPassword",userDTO);
     }
 
     @Override
     public void updatePassword(ResetPasswordRequest request) {
         UserDTO userDTO = redisService.getValue(request.getId());
+        if(userDTO == null){
+            throw new UserNotFoundException("email not found");
+        }
         UserModel userModel = modelMapper.map(userDTO, UserModel.class);
         userModel.setPassword(passwordEncoder.encode(request.getPassword()));
         updateUserUseCase.execute(userModel);
@@ -216,6 +261,23 @@ public class AuthService  implements IAuthService {
         return map(findUserUseCase.execute(List.of(fieldId))).get(0);
     }
 
+    @Override
+    public void logOut(String token, String refreshToken) {
+        token = token.replace("Bearer ","");
+        jwtService.addToBlacklist(token);
+        if(refreshToken != null){
+            jwtService.addToBlacklist(refreshToken);
+        }
+        String userName =  jwtService.extractUsername(token);
+        redisService.removeUserSession(userName);
+
+    }
+
+    @Override
+    public void hardDeleteById(DeleteUserRequest request) {
+        hardDeleteUserUseCase.execute(request);
+    }
+
     private List<UserResponseDTO> map(List<UserCredential> userCredentials) {
         return userCredentials.stream()
                 .map(user -> {
@@ -231,7 +293,7 @@ public class AuthService  implements IAuthService {
 
     private String[] getPermissionsByUserCredential(UserCredential userCredential) {
         Set<PermissionModel> permissionModels = getPermissionUseCase.execute(modelMapper.map(userCredential, UserModel.class));
-        return permissionModels.stream().map(PermissionModel::getGroupCode).toArray(String[]::new);
+        return permissionModels.stream().map(PermissionModel::getCode).toArray(String[]::new);
     }
 
     @KafkaListener(id="consumer-user-register-response",topics = "UserRegisterResponse")
@@ -240,4 +302,17 @@ public class AuthService  implements IAuthService {
         user.setEmail(userRegister.getRecipient());
         updateUserUseCase.execute(user);
     }
+
+
+    @Scheduled(fixedRate = 60000) // Chạy mỗi 1 phút
+    public void unlockAccounts() {
+        List<UserCredential> userCredentials = findUserUseCase.execute(List.of(SearchUserCriteria.builder()
+                .key("isBlocked")
+                .operation(":")
+                .value(true)
+                .build()));
+        List<UserCredential> blockedByFailedAttemptLogin = userCredentials.stream().filter(userCredential -> userCredential.getLockTime() != null).toList();
+        blockedByFailedAttemptLogin.forEach(handleFailedAttemptLoginUseCase::unlockUser);
+    }
+
 }
