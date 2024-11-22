@@ -1,8 +1,6 @@
 package com.bookms.order.interfaceLayer.DTO;
 
-import com.bookms.order.core.domain.Entity.OrderType;
 import com.bookms.order.core.domain.Entity.Status;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
@@ -19,26 +17,22 @@ public class OrderDTO {
     private Integer id;
     @NotNull(message = "order number is required")
     private Long orderNumber;
-    @NotNull(message = "orderType is required")
-    private OrderType orderType;
     private Status status;
-    @NotNull(message = "customer id is required")
     private int customerId;
+    @NotNull(message = "customer name is required")
     private String customerName;
+    private String customerEmail;
     private BigDecimal totalPrice;
     private List<OrderItemDTO> orderItems;
+    @NotNull(message = "schedule id is required")
+    private Integer scheduleId;
+    @NotNull(message = "departure station id is required")
+    private Integer departureStationId;
+    @NotNull(message = "arrival station id is required")
+    private Integer arrivalStationId;
     @NotNull(message = "payment method is required")
     private String paymentMethod;
     private Date createdDate;
     private String token;
-    @NotNull(message = "shipment service is required")
-    private Integer shipmentServiceId;
-    @NotNull(message = "origin address is required")
-    private Integer originAddressId;
-    @NotNull(message = "destination address is required")
-    private String destinationAddress;
-    @NotNull(message = "shipment fee is required")
-    private double shipmentFee;
-    @NotNull(message = "distance is required for shipment")
-    private double distance;
+
 }

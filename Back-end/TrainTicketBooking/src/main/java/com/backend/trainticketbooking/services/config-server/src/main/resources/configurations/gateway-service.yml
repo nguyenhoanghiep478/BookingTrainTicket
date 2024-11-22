@@ -44,6 +44,12 @@ spring:
             - Path=/api/v1/train/**
           filters:
             - AuthenticationFilter
+        - id: ticket-service
+          uri: lb:http://STORE-SERVICE
+          predicates:
+            - Path=/api/v1/ticket/**
+          filters:
+            - AuthenticationFilter
         - id: route-service
           uri: lb:http://STORE-SERVICE
           predicates:
@@ -60,6 +66,12 @@ spring:
           uri: lb:http://STORE-SERVICE
           predicates:
             - Path=/api/v1/station/**
+          filters:
+            - AuthenticationFilter
+        - id: station-service
+          uri: lb:http://STORE-SERVICE
+          predicates:
+            - Path=/api/v1/monitoring/**
           filters:
             - AuthenticationFilter
         - id: marketing-service

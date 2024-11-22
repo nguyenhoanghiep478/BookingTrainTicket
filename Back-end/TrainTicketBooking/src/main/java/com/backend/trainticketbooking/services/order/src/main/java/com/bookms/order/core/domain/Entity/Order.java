@@ -12,39 +12,34 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Orders extends AbstractEntity{
+@Table(name = "Orders")
+public class Order extends AbstractEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     @Column(unique=true,nullable=false)
     private Long orderNumber;
     @Enumerated(EnumType.STRING)
-    @Column(nullable=false)
-    private OrderType orderType;
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Status status;
-    @Column(unique=true,nullable=false)
+    @Column(unique=true)
     private int customerId;
     @Column(nullable=false)
     private BigDecimal totalPrice;
-    @OneToMany(cascade = CascadeType.ALL,fetch = FetchType.EAGER,orphanRemoval = true,mappedBy = "orders")
+    @OneToMany(cascade = CascadeType.ALL,
+            fetch = FetchType.EAGER,
+            orphanRemoval = true,
+            mappedBy = "order")
     private List<OrderItems> orderItems;
     @Column(nullable=false)
     private String paymentMethod;
     @Column(nullable=false)
     private Integer paymentId;
-
-    @Column(nullable=false)
-    private Integer shipmentId;
-
+    private Integer ticketId;
     @PrePersist
     public void prePersist(){
         if(this.status == null){
             this.status = Status.PENDING;
-        }
-        if(this.orderType == null){
-            this.orderType = OrderType.SELL;
         }
     }
 }

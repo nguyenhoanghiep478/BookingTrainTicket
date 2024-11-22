@@ -14,4 +14,5 @@ public class NewUserRegister {
     private String recipient;
     private Boolean isVerified;
     private Boolean isFirstVisit;
+    private Boolean isBlocked;
 }

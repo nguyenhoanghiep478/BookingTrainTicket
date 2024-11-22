@@ -1,6 +1,5 @@
 package com.bookms.order.application.model;
 
-import com.bookms.order.core.domain.Entity.OrderType;
 import jakarta.validation.constraints.Digits;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

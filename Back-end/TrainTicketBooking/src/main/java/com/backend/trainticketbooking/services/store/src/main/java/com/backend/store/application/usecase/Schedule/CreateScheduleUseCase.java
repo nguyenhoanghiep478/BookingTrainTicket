@@ -1,15 +1,21 @@
 package com.backend.store.application.usecase.Schedule;
 
-import com.backend.store.application.model.Criteria;
 import com.backend.store.application.model.ScheduleModel;
 import com.backend.store.application.usecase.Route.FindRouteUseCase;
 import com.backend.store.application.usecase.Train.FindTrainUseCase;
 import com.backend.store.core.domain.entity.schedule.Route;
 import com.backend.store.core.domain.entity.schedule.Schedule;
 import com.backend.store.core.domain.entity.schedule.ScheduleStation;
+import com.backend.store.core.domain.entity.schedule.Station;
 import com.backend.store.core.domain.entity.train.Train;
 import com.backend.store.core.domain.exception.ScheduleExistedException;
+import com.backend.store.core.domain.exception.TrainNotAvailableException;
 import com.backend.store.core.domain.repository.IScheduleRepository;
+import static com.backend.store.core.domain.state.StaticVar.*;
+import static com.backend.store.core.domain.state.TrainStatus.ON_WORKING;
+
+import com.backend.store.core.domain.state.StaticVar;
+import com.backend.store.core.domain.state.TrainStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -26,18 +32,31 @@ public class CreateScheduleUseCase {
         private final FindTrainUseCase findTrainUseCase;
 
         public Schedule execute(final ScheduleModel scheduleModel) {
-                Optional<Schedule> schedule = repository.findByRouteIdAndTrainId(scheduleModel.getRouteId(),scheduleModel.getTrainId());
-                if(schedule.isPresent()) {
-                        throw new ScheduleExistedException(String.format("Schedule with train id %s and route id %s already exists", scheduleModel.getTrainId(),scheduleModel.getRouteId()));
+                Train train = findTrainUseCase.findById(scheduleModel.getTrainId());
+                if(!train.getTrainStatus().equals(TrainStatus.ON_NOT_WORKING)){
+                    throw new TrainNotAvailableException(String.format("Train %s is running in another schedule",train.getTrainName()));
                 }
-                Schedule newSchedule = map(scheduleModel);
 
+                Route route = findRouteUseCase.findById(scheduleModel.getRouteId());
+                Station startStation = route.getRouteStations().get(0).getStation();
+
+                if(train.getCurrentStation() != null &&!train.getCurrentStation().equals(startStation) ){
+                    throw new TrainNotAvailableException(String.format("Train %s is not at the current station",train.getTrainName()));
+                }
+
+                Schedule newSchedule = map(scheduleModel);
+                train.setCurrentStation(startStation);
+                train.setTrainStatus(ON_WORKING);
                 return repository.save(newSchedule);
         }
 
         private Schedule map(ScheduleModel scheduleModel) {
                 Route route = findRouteUseCase.findById(scheduleModel.getRouteId());
                 Train train = findTrainUseCase.findById(scheduleModel.getTrainId());
+
+                if(train.getCapacity() == 0 ){
+                    throw new TrainNotAvailableException(String.format("Train %s not available because capacity is 0" , train.getTrainName()));
+                }
 
                 Schedule schedule = new Schedule();
                 LocalDate tomorrow = LocalDate.now().plusDays(1);
@@ -51,8 +70,6 @@ public class CreateScheduleUseCase {
                 Instant instant = zonedDateTime.toInstant();
                 final Timestamp[] startTime = {Timestamp.from(instant)};
 
-                long travelTimeMinutes = 60;
-                long breakTimeMinutes = 20;
 
                 List<ScheduleStation> scheduleStations = route.getRouteStations().stream()
                         .map(routeStation -> {
@@ -62,8 +79,8 @@ public class CreateScheduleUseCase {
 
                                 LocalDateTime startLocalDateTime = startTime[0].toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
 
-                                LocalDateTime arrivalTime = startLocalDateTime.plusMinutes(travelTimeMinutes);
-                                LocalDateTime departureTime = arrivalTime.plusMinutes(breakTimeMinutes);
+                                LocalDateTime departureTime = startLocalDateTime.plusMinutes(TRAVEL_TIME_MINUTES);
+                                LocalDateTime arrivalTime = departureTime.plusMinutes(BREAK_TIME_MINUTES);
 
                                 Timestamp arrivalTimestamp = Timestamp.valueOf(arrivalTime);
                                 Timestamp departureTimestamp = Timestamp.valueOf(departureTime);

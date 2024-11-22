@@ -24,6 +24,14 @@ public class UpdateSeatUseCase {
         return seatRepository.save(afterMerge);
     }
 
+    public boolean changeStatus(int seatId,Boolean isAvailable){
+        Seat seat = seatRepository.findById(seatId).orElseThrow(
+                () -> new SeatNotExistException(String.format("seat with id %s not exist",seatId))
+        );
+        seat.setIsAvailable(isAvailable);
+        return seatRepository.save(seat) != null;
+    }
+
     private Seat merge(Seat seat,SeatModel model){
         if(model.getPrice() != null){
             seat.setPrice(model.getPrice());

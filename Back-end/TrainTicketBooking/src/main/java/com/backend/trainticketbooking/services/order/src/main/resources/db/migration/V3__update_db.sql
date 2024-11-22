@@ -1,3 +1,0 @@
-ALTER TABLE orders
-ALTER COLUMN payment_id DROP NOT NULL,
-ALTER COLUMN payment_method DROP NOT NULL

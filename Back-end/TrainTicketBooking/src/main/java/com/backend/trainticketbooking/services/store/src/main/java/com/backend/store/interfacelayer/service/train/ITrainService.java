@@ -1,9 +1,12 @@
 package com.backend.store.interfacelayer.service.train;
 
+import com.backend.store.interfacelayer.dto.objectDTO.TrainDTO;
 import com.backend.store.interfacelayer.dto.request.ModifiedRailcarsToTrainRequest;
 import com.backend.store.interfacelayer.dto.request.CreateTrainRequest;
 import com.backend.store.interfacelayer.dto.response.ModifiedRailcarsToTrainResponse;
 import com.backend.store.interfacelayer.dto.response.CreateTrainResponse;
+
+import java.util.List;
 
 public interface ITrainService {
     CreateTrainResponse create(CreateTrainRequest request);
@@ -11,4 +14,6 @@ public interface ITrainService {
     ModifiedRailcarsToTrainResponse addRailcars(ModifiedRailcarsToTrainRequest request);
 
     ModifiedRailcarsToTrainResponse detachRailcars(ModifiedRailcarsToTrainRequest request);
+
+    List<TrainDTO> getAll();
 }

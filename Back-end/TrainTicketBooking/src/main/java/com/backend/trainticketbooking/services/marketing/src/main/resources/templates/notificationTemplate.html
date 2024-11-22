@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Departure Notification</title>
+</head>
+<body>
+<div style="font-family: Arial, sans-serif; line-height: 1.6;">
+    <h2>Dear <span th:text="${customerName}"></span>,</h2>
+    <p>We would like to inform you about your upcoming journey.</p>
+
+    <p>
+        Your train <strong><span th:text="${trainName}"></span></strong> will depart soon.
+        Please make sure you are ready for departure at the following time:
+    </p>
+
+    <p>
+        <strong>Train:</strong> <span th:text="${trainName}"></span><br/>
+        <strong>Seats:</strong>
+    <ul>
+        <!-- Sử dụng vòng lặp để hiển thị từng ghế trong danh sách -->
+        <li th:each="seat : ${seatName}" th:text="${seat}"></li>
+    </ul>
+    <strong>Departure Time:</strong> <span th:text="${departureTime}"></span><br/>
+    </p>
+
+    <p>We hope you have a pleasant journey!</p>
+
+    <p>Thank you for choosing our service.</p>
+
+    <p>Sincerely,<br/>The Train Service Team</p>
+</div>
+</body>
+</html>

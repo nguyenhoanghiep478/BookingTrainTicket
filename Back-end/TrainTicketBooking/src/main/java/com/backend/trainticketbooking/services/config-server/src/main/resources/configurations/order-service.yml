@@ -1,15 +1,15 @@
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/order
-    username: hiep
-    password: 123456
+    url: ${DB_URL}/order${ADDITIONAL_PROP}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
   jpa:
     show-sql: true
     hibernate:
       ddl-auto: validate
     database: postgresql
-    database-platform:  org.hibernate.dialect.PostgreSQLDialect
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
   flyway:
     repair: true
     baseline-on-migrate: true

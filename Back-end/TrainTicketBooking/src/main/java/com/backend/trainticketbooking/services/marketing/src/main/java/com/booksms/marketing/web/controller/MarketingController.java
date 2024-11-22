@@ -4,6 +4,7 @@ import com.booksms.marketing.interfaceLayer.dto.VerifyUserDTO;
 import com.booksms.marketing.interfaceLayer.dto.request.EmailRequest;
 import com.booksms.marketing.interfaceLayer.service.IEmailService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/marketing")
 @RequiredArgsConstructor
 public class MarketingController {
+
     private final IEmailService emailService;
 
 

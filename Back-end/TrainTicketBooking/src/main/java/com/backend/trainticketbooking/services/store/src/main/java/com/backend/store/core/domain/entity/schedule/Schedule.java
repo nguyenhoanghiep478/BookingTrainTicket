@@ -1,6 +1,7 @@
 package com.backend.store.core.domain.entity.schedule;
 
 import com.backend.store.core.domain.entity.AbstractEntity;
+import com.backend.store.core.domain.entity.Booking.Ticket;
 import com.backend.store.core.domain.entity.train.Train;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -28,8 +29,7 @@ public class Schedule extends AbstractEntity {
     @JoinColumn(name = "route_id")
     private Route route;
 
-    @OneToMany(mappedBy = "schedule")
+    @OneToMany(mappedBy = "schedule",cascade = CascadeType.ALL)
     private List<Ticket> tickets;
-
 
 }

@@ -38,13 +38,13 @@ public class UpdateUserUseCase implements BaseUsecase<UserModel, UserModel> {
             credential.setAddress(userModel.getAddress());
         }
         if(userModel.getIsVerified() != null){
-            credential.setVerified(userModel.getIsVerified());
+            credential.setIsVerified(userModel.getIsVerified());
         }
         if(userModel.getPassword() != null){
             credential.setPassword(userModel.getPassword());
         }
         if(userModel.getIsFirstVisit() != null){
-            credential.setFirstVisit(userModel.getIsFirstVisit());
+            credential.setIsFirstVisit(userModel.getIsFirstVisit());
         }
         return credential;
     }
