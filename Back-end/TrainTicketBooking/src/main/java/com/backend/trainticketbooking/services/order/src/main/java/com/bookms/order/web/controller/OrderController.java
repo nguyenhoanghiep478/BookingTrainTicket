@@ -119,18 +119,18 @@ public class OrderController {
     }
 
 
-    @PostMapping("/pay-order-cod")
-    public ResponseEntity<?> PayOrderCod(@RequestBody OrderDTO request) {
-        OrdersModel ordersModel = service.handleCodPaymentMethod(request);
-
-        return ResponseEntity.ok(ResponseDTO.builder()
-                .message(Arrays.asList("sent token"))
-                .status(200)
-                .result(ordersModel)
-                .build()
-        );
-
-    }
+//    @PostMapping("/pay-order-cod")
+//    public ResponseEntity<?> PayOrderCod(@RequestBody OrderDTO request) {
+//        OrdersModel ordersModel = service.handleCodPaymentMethod(request);
+//
+//        return ResponseEntity.ok(ResponseDTO.builder()
+//                .message(Arrays.asList("sent token"))
+//                .status(200)
+//                .result(ordersModel)
+//                .build()
+//        );
+//
+//    }
 
 
     @PostMapping("/success-payment")

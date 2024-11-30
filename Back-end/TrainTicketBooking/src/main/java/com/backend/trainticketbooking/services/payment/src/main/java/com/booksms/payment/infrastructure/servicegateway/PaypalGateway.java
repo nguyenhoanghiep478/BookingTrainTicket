@@ -34,7 +34,7 @@ public class PaypalGateway {
         Payment payment = getPayment(paypalCustomModel, transactions);
 
         Payment createdPayment = payment.create(apiContext);
-
+        responsePayment.setPaymentMethod("PAYPAL");
         orderRedisService.setValue(String.valueOf(responsePayment.getOrderNumber()),responsePayment);
         return createdPayment;
     }

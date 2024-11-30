@@ -44,4 +44,12 @@ public interface ScheduleJpaRepository extends JpaRepository<Schedule, Integer> 
             @Param("departureStation") String departureStation,
             @Param("arrivalStation") String arrivalStation,
             @Param("arrivalTime") Timestamp arrivalTime);
+
+    @Query(value = "Select s.* From " +
+            "Schedule as s " +
+            "join schedule_station as ss on ss.schedule_id = s.id and ss.stop_sequence = 1 " +
+            "where ss.departure_time > current_timestamp ",nativeQuery = true
+    )
+    List<Schedule> findAllAvailable();
+
 }

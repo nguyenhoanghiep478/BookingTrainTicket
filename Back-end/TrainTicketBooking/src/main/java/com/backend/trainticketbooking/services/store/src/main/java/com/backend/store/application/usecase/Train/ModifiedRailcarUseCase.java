@@ -5,6 +5,7 @@ import com.backend.store.application.model.TrainModel;
 import com.backend.store.application.usecase.Railcar.FindRailcarUseCase;
 import com.backend.store.core.domain.entity.train.Railcar;
 import com.backend.store.core.domain.entity.train.Train;
+import com.backend.store.core.domain.exception.RailcarNotExistException;
 import com.backend.store.core.domain.exception.TrainNotExistedException;
 import com.backend.store.core.domain.repository.ITrainRepository;
 import com.backend.store.core.domain.state.ModifiedType;
@@ -35,7 +36,7 @@ public class ModifiedRailcarUseCase {
         List<Railcar> railcarList = findRailcarUseCase.execute(List.of(findInIds));
 
         if(railcarList.isEmpty()) {
-            return null;
+            throw new RailcarNotExistException("railcar not found");
         }
 
         if(modifiedType.equals(ModifiedType.ADD)){

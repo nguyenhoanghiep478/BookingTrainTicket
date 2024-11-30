@@ -1,6 +1,7 @@
 package com.bookms.order.application.usecase.impl;
 
 import com.bookms.order.application.BaseUseCase;
+import com.bookms.order.application.model.OrderItemModel;
 import com.bookms.order.application.model.OrdersModel;
 import com.bookms.order.application.model.SeatModel;
 import com.bookms.order.core.domain.Entity.Order;
@@ -15,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
@@ -37,11 +39,18 @@ public class PreCreateOrderUseCase implements BaseUseCase<OrdersModel, OrdersMod
         }
 
         List<SeatModel> seatModels = serviceGateway.getSeatsAvailableInSystem(orders);
-
+        orders.setSeatModels(seatModels);
+        if(orders.getIsHaveRoundTrip()){
+            List<OrderItemModel> forwardItems = orders.getOrderItems();
+            forwardItems.addAll(orders.getRoundTripItems());
+            orders.setOrderItems(forwardItems);
+        }
         BigDecimal totalPrice =  validOrder(orders,seatModels);
         orders.setTotalPrice(totalPrice);
         Random random = new Random();
         orders.setTicketId(Math.abs(random.nextInt()));
+        orders.setRoundTripTicketId(Math.abs(random.nextInt()));
+
 
 
         for(int i = 0 ; i < seatModels.size() ; i++){
@@ -57,22 +66,49 @@ public class PreCreateOrderUseCase implements BaseUseCase<OrdersModel, OrdersMod
 
     private BigDecimal validOrder(OrdersModel order, List<SeatModel> seatModels){
         BigDecimal totalPrice = BigDecimal.ZERO;
-        for(int i = 0 ; i<order.getOrderItems().size() ; i++){
+        BigDecimal roundTripPrice = BigDecimal.ZERO;
+        if(order.getIsHaveRoundTrip()){
+            int forwardSize = order.getSeatModels().size()/2;
+            for(int i = 0 ; i< order.getRoundTripItems().size();i++){
+                BigDecimal price = seatModels.get(i+forwardSize).getPrice().stripTrailingZeros();
+                price = price.setScale(2, RoundingMode.HALF_UP);
+                BigDecimal orderPrice = order.getRoundTripItems().get(i).getPrice().stripTrailingZeros();
+                orderPrice = orderPrice.setScale(2, RoundingMode.HALF_UP);
+                if(!price.equals(orderPrice)){
+                    throw new PriceNotTheSameException(String.format("price for item %s not the same with store",seatModels.get(i+forwardSize).getSeatNumber()));
+                }
+                roundTripPrice = roundTripPrice.add(price);
+            }
+            order.setRoundTripTotalPrice(roundTripPrice);
+        }
+
+        for(int i = 0 ; i<order.getOrderItems().size()/2 ; i++){
             BigDecimal price = seatModels.get(i).getPrice().stripTrailingZeros();
+            price = price.setScale(2, RoundingMode.HALF_UP);
             BigDecimal orderPrice = order.getOrderItems().get(i).getPrice().stripTrailingZeros();
+            orderPrice = orderPrice.setScale(2, RoundingMode.HALF_UP);
             if(!price.equals(orderPrice) ){
                 throw new PriceNotTheSameException(String.format("price for item %s not the same with store",seatModels.get(i).getSeatNumber()));
             }
             totalPrice = totalPrice.add(price);
 
         }
+
         if(order.getTotalPrice()!=null){
             totalPrice = totalPrice.stripTrailingZeros();
-            order.setTotalPrice(order.getTotalPrice().stripTrailingZeros());
+            roundTripPrice = roundTripPrice.stripTrailingZeros();
+            totalPrice = totalPrice.add(roundTripPrice);
+
+            totalPrice = totalPrice.setScale(2, RoundingMode.HALF_UP);
+            BigDecimal orderTotalPrice = order.getTotalPrice();
+            orderTotalPrice = orderTotalPrice.setScale(2, RoundingMode.HALF_UP);
+            order.setTotalPrice(orderTotalPrice);
             if(!totalPrice.equals(order.getTotalPrice())){
                 throw new TotalPriceNotTheSameException(String.format("total price for order %s not correct ",order.getOrderNumber()));
             }
         }
+
+
         return totalPrice;
     }
 

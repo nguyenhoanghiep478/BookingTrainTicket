@@ -1,11 +1,14 @@
 package com.booksms.authentication.web.controller;
 
 import com.booksms.authentication.interfaceLayer.DTO.Request.DeleteUserRequest;
+import com.booksms.authentication.interfaceLayer.DTO.Request.UpdateUserRequest;
 import com.booksms.authentication.interfaceLayer.DTO.Request.UserDTO;
 import com.booksms.authentication.interfaceLayer.DTO.Response.AuthResponse;
 import com.booksms.authentication.interfaceLayer.DTO.Response.ResponseDTO;
+import com.booksms.authentication.interfaceLayer.DTO.Response.UpdateUserResponse;
 import com.booksms.authentication.interfaceLayer.DTO.Response.UserResponseDTO;
 import com.booksms.authentication.interfaceLayer.service.IAuthService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -32,6 +35,16 @@ public class AuthController {
                 .status(200)
                 .message(Collections.singletonList("login successful"))
                 .result(total)
+                .build());
+    }
+
+    @PostMapping("/update-user")
+    public ResponseEntity<?> updateUser(@RequestBody @Valid UpdateUserRequest request) {
+        UpdateUserResponse response = authService.updateUser(request);
+        return ResponseEntity.ok(ResponseDTO.builder()
+                .status(200)
+                .result(response)
+                .message(Collections.singletonList("update user successful"))
                 .build());
     }
 

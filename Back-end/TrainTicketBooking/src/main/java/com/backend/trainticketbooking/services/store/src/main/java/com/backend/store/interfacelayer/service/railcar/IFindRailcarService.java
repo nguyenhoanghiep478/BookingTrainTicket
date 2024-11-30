@@ -6,4 +6,5 @@ import java.util.List;
 
 public interface IFindRailcarService {
     List<Railcar> getAll();
+    Railcar getById(int id);
 }

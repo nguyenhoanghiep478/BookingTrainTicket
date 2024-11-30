@@ -103,5 +103,10 @@ public class FindScheduleService implements IFindScheduleService {
         return schedules == null ? null : schedules;
     }
 
+    @Override
+    public List<Schedule> findAllAvailable() {
+        return findScheduleUseCase.findALlAvailable();
+    }
+
 
 }

@@ -9,6 +9,7 @@ import com.booksms.authentication.core.entity.UserCredential;
 import com.booksms.authentication.core.exception.*;
 import com.booksms.authentication.interfaceLayer.DTO.Request.*;
 import com.booksms.authentication.interfaceLayer.DTO.Response.AuthResponse;
+import com.booksms.authentication.interfaceLayer.DTO.Response.UpdateUserResponse;
 import com.booksms.authentication.interfaceLayer.DTO.Response.UserResponseDTO;
 import com.booksms.authentication.interfaceLayer.service.IAuthService;
 import com.booksms.authentication.interfaceLayer.service.IJwtService;
@@ -240,7 +241,7 @@ public class AuthService  implements IAuthService {
             throw new UserNotFoundException("email not found");
         }
         UserModel userModel = modelMapper.map(userDTO, UserModel.class);
-        userModel.setPassword(passwordEncoder.encode(request.getPassword()));
+        userModel.setPassword(request.getPassword());
         updateUserUseCase.execute(userModel);
     }
 
@@ -276,6 +277,13 @@ public class AuthService  implements IAuthService {
     @Override
     public void hardDeleteById(DeleteUserRequest request) {
         hardDeleteUserUseCase.execute(request);
+    }
+
+    @Override
+    public UpdateUserResponse updateUser(UpdateUserRequest request) {
+       UserModel model =  updateUserUseCase.execute(modelMapper.map(request,UserModel.class));
+
+       return modelMapper.map(model, UpdateUserResponse.class);
     }
 
     private List<UserResponseDTO> map(List<UserCredential> userCredentials) {

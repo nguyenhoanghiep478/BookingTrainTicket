@@ -35,19 +35,36 @@ public class StoreServiceGateway implements IStoreServiceGateway {
         try{
            List<Integer> seatIds = orders.getOrderItems().stream().map(OrderItemModel::getSeatId).toList();
            ResponseEntity<ResponseDTO> response = storeClient.getSeatAvailableById(seatIds,orders.getScheduleId(), orders.getDepartureStationId(), orders.getArrivalStationId());
+           ResponseDTO roundTripResponseDTO = null;
+           if(orders.getIsHaveRoundTrip()){
+               List<Integer> roundTripSeatIds = orders.getRoundTripItems().stream().map(OrderItemModel::getSeatId).toList();
+                 ResponseEntity<ResponseDTO> roundTripResponse = storeClient.getSeatAvailableById(roundTripSeatIds,orders.getRoundTripScheduleId(), orders.getArrivalStationId(), orders.getDepartureStationId());
+                roundTripResponseDTO = roundTripResponse.getBody();
+           }
+
            ResponseDTO responseDTO = response.getBody();
-            List<SeatModel> seatModels = null;
-            Map<List<SeatModel>, Object> map = null;
-            if (responseDTO != null && responseDTO.getResult() != null) {
-                seatModels = modelMapper.map(responseDTO.getResult(), List.class);
-                seatModels = objectMapper.convertValue(seatModels, objectMapper.getTypeFactory().constructCollectionType(List.class, SeatModel.class));
+
+           List<SeatModel> seatModels = handleResponseToSeatModel(responseDTO);
+
+            if(roundTripResponseDTO != null){
+                List<SeatModel> roundTripSeatModels = handleResponseToSeatModel(responseDTO);
+                seatModels.addAll(roundTripSeatModels);
             }
             return seatModels;
-
         }catch (Error e){
             log.error(e.getMessage());
 
         }
         return null;
+    }
+
+    private List<SeatModel> handleResponseToSeatModel(ResponseDTO responseDTO) {
+        List<SeatModel> seatModels = null;
+        Map<List<SeatModel>, Object> map = null;
+        if (responseDTO != null && responseDTO.getResult() != null) {
+            seatModels = modelMapper.map(responseDTO.getResult(), List.class);
+            seatModels = objectMapper.convertValue(seatModels, objectMapper.getTypeFactory().constructCollectionType(List.class, SeatModel.class));
+        }
+        return seatModels;
     }
 }

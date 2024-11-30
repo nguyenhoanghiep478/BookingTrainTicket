@@ -15,7 +15,8 @@ public enum Error {
     TOKEN_IS_BLACKLISTED_EXCEPTION(403,"Token is in blacklist",HttpStatus.FORBIDDEN),
     INVALID_SESSION_LOGIN_EXCEPTION(403,"This account logged in other place",HttpStatus.UNAUTHORIZED),
     INVALID_ARGUMENT(500,"Invalid argument",HttpStatus.BAD_REQUEST),
-    TOKEN_EXPIRATION_EXCEPTION(401,"token expried",HttpStatus.UNAUTHORIZED),
+    PASSWORD_THE_SAME_WITH_OLD_PASSWORD(400,"old password the same with new password",HttpStatus.BAD_REQUEST)
+    ,TOKEN_EXPIRATION_EXCEPTION(401,"token expried",HttpStatus.UNAUTHORIZED),
     INTERNAL_ERROR(500,"Internal error,please contact admin",HttpStatus.INTERNAL_SERVER_ERROR);
     ;
 

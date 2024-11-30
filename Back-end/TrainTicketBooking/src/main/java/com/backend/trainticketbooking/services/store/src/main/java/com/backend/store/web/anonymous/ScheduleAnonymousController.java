@@ -12,6 +12,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/schedule/anonymous")
@@ -97,6 +98,15 @@ public class ScheduleAnonymousController {
         return ResponseEntity.ok(ResponseDTO.builder()
                 .status(200)
                 .message(List.of("get schedule by departure and arrival successful"))
+                .result(response)
+                .build());
+    }
+    @GetMapping("/get-schedules-available")
+    public ResponseEntity<?> getSchedulesAvailable() {
+        Map<Integer,List<ScheduleDTO>> response = scheduleService.findAllAvailableSchedules();
+        return ResponseEntity.ok(ResponseDTO.builder()
+                .status(200)
+                .message(List.of("get all available schedules successful"))
                 .result(response)
                 .build());
     }

@@ -45,3 +45,7 @@ spring:
       auto-offset-reset: earliest
 server:
   port: 5555
+
+open-ai:
+  key: ${OPEN_AI_KEY}
+  url: ${OPEN_AI_URL}

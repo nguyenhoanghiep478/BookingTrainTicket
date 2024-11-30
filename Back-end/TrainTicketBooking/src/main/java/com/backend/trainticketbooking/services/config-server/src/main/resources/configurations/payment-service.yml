@@ -51,3 +51,17 @@ paypal:
   client-id: Aea4e_SkxKosELVOKQpToZA2ygejLyE3hjNB9xPvYIAUKJs7N7mkh9gjn3AimSnLm4AbV35LyE9DgK3U
   client-secret: EELwo2NAQzmukAfGgV83byXxMf5hRYD2n65XA6UsfdFIPCcnW7ggwPSc7-StjI1HosQYSSI3QG8Lpz_U
   mode : sandbox
+
+momo:
+  partner-code: ${PARTNER_CODE}
+  access-key: ${ACCESS_KEY}
+  secret-key: ${SECRET_KEY}
+  ipn-url: ${IPN_URL}
+  return-url: ${RETURN_URL}
+  payment-url: ${PAYMENT_URL}
+
+vnpay:
+  tmn-code: ${VNPAY_TMN_CODE}        # Mã tích hợp do VNPAY cung cấp
+  hash-secret: ${VNPAY_HASH_SECRET}    # Chuỗi bí mật do VNPAY cung cấp
+  pay-url: ${VNPAY_URL} # URL thanh toán (sandbox/prod)
+  return-url: ${VNPAY_RETURN_URL}

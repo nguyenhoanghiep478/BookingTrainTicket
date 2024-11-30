@@ -17,4 +17,9 @@ public class FindTrainService implements IFindTrainService {
     public List<Train> getAll() {
         return findTrainUseCase.execute(null);
     }
+
+    @Override
+    public Train getById(int id) {
+        return findTrainUseCase.findById(id);
+    }
 }

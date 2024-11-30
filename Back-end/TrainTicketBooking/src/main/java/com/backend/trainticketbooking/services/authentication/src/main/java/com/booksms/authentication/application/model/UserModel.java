@@ -17,4 +17,6 @@ public class UserModel {
     private String password;
     private Boolean isVerified;
     private Boolean isFirstVisit;
+
+    private String oldPassword;
 }

@@ -116,4 +116,8 @@ public class FindScheduleUseCase {
         List<Integer> ids = mapObjectFromRepoToId(objects);
         return findInIds(ids);
     }
+
+    public List<Schedule> findALlAvailable() {
+        return scheduleRepository.findAllAvailable();
+    }
 }

@@ -1,6 +1,7 @@
 package com.bookms.order.application.model;
 
 import com.bookms.order.core.domain.Entity.Status;
+import com.bookms.order.core.domain.State.PaymentMethod;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -25,8 +26,16 @@ public class OrdersModel {
     private Integer scheduleId;
     private Integer departureStationId;
     private Integer arrivalStationId;
-    private String paymentMethod;
+    private PaymentMethod paymentMethod;
     private List<BookModel> bookModels;
     private List<SeatModel> seatModels;
     private Integer paymentId;
+    private Boolean isHaveRoundTrip;
+    private Integer roundTripScheduleId;
+    private List<OrderItemModel> roundTripItems;
+    private BigDecimal roundTripTotalPrice;
+    private Integer roundTripTicketId;
+
+    private List<Integer> forwardSeatIds;
+    private List<Integer> roundTripSeatIds;
 }

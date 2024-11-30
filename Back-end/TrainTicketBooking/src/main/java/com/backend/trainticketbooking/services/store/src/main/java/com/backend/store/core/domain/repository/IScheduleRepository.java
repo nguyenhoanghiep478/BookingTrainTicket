@@ -20,4 +20,6 @@ public interface IScheduleRepository {
 
     List<Object[]> findScheduleByDepartAndArrival(Integer departureStationId, Integer arrivalStationId, Timestamp arrivalTime);
     List<Object[]> findScheduleByDepartAndArrivalName(String departureStationId, String arrivalStationId, Timestamp arrivalTime);
+
+    List<Schedule> findAllAvailable();
 }

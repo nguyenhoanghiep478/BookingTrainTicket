@@ -22,10 +22,14 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import static com.bookms.order.core.domain.Entity.Status.*;
 import static com.bookms.order.core.domain.State.Concurency.USD;
+import static com.bookms.order.core.domain.State.StaticPayment.MOMO;
 import static com.bookms.order.core.domain.State.StaticPayment.PAYPAL;
 
 @Service
@@ -48,18 +52,36 @@ public class CreateOrderService implements ICreateOrderService {
         if(request.getCustomerId().equals(0)){
             ordersModel.setCustomerId(null);
         }
+        List<OrderItemModel> orderItems = request.getOrderItems();
+        int size = request.getRoundTripItems().size();
+        List<Integer> forwardSeatIds = new ArrayList<>();
+        for(int i = 0; i < size; i++){
+            Integer seatId = orderItems.get(i).getSeatId();
+            forwardSeatIds.add(seatId);
+        }
+
         TicketDTO ticketDTO = TicketDTO.builder()
                 .id(ordersModel.getTicketId())
-                .customerEmail(request.getCustomerEmail())
-                .customerName(request.getCustomerName())
-                .scheduleId(request.getScheduleId())
-                .arrivalStationId(request.getArrivalStationId())
-                .departureStationId(request.getDepartureStationId())
-                .seatIds(request.getOrderItems().stream().map(OrderItemModel::getSeatId).toList())
-                .customerId(request.getCustomerId())
-                .price(request.getTotalPrice())
+                .customerEmail(ordersModel.getCustomerEmail())
+                .customerName(ordersModel.getCustomerName())
+                .scheduleId(ordersModel.getScheduleId())
+                .arrivalStationId(ordersModel.getArrivalStationId())
+                .departureStationId(ordersModel.getDepartureStationId())
+                .seatIds(forwardSeatIds)
+                .customerId(ordersModel.getCustomerId())
+                .price(ordersModel.getTotalPrice().subtract(request.getRoundTripTotalPrice()))
                 .build();
         storeKafkaTemplate.send("order-created", ticketDTO);
+
+        if(request.getIsHaveRoundTrip()){
+            ticketDTO.setId(ordersModel.getRoundTripTicketId());
+            ticketDTO.setScheduleId(ordersModel.getRoundTripScheduleId());
+            ticketDTO.setDepartureStationId(ordersModel.getArrivalStationId());
+            ticketDTO.setArrivalStationId(ordersModel.getDepartureStationId());
+            ticketDTO.setPrice(ordersModel.getRoundTripTotalPrice());
+            ticketDTO.setSeatIds(ordersModel.getRoundTripItems().stream().map(OrderItemModel::getSeatId).toList());
+            storeKafkaTemplate.send("order-created", ticketDTO);
+        }
         return ordersModel;
     }
     @KafkaListener(id = "consumer-created-order-response",topics = "order-created-response")
@@ -86,6 +108,7 @@ public class CreateOrderService implements ICreateOrderService {
 
         ordersModel = orderRedisService.getOrder(request.getOrderNumber());
         createOrderUseCase.execute(ordersModel);
+        ordersModel.setOrderNumber(ordersModel.getOrderNumber()-1);
         return getPaymentModel(ordersModel);
     }
 
@@ -101,8 +124,9 @@ public class CreateOrderService implements ICreateOrderService {
 
     @KafkaListener(id = "payment-response",topics = "payment-response")
     public void handleResponse(ResponsePayment responsePayment) {
+        log.info(responsePayment.toString());
         OrdersModel orderWasPaid= afterPayment(responsePayment.getOrderNumber());
-        orderWasPaid.setPaymentMethod(responsePayment.getPaymentMethod());
+        orderWasPaid.setPaymentMethod(PaymentMethod.valueOf(responsePayment.getPaymentMethod()));
         orderWasPaid.setPaymentId(responsePayment.getPaymentId());
         orderWasPaid.setStatus(responsePayment.getStatus());
         createOrder(orderWasPaid);
@@ -112,7 +136,7 @@ public class CreateOrderService implements ICreateOrderService {
     @Override
     public OrdersModel handleOrderWasPaid(ResponsePayment responsePayment) {
         OrdersModel orderWasPaid= afterPayment(responsePayment.getOrderNumber());
-        orderWasPaid.setPaymentMethod(responsePayment.getPaymentMethod());
+        orderWasPaid.setPaymentMethod(PaymentMethod.valueOf(responsePayment.getPaymentMethod()));
         orderWasPaid.setPaymentId(responsePayment.getPaymentId());
         orderWasPaid.setStatus(responsePayment.getStatus());
         return orderWasPaid;
@@ -121,21 +145,31 @@ public class CreateOrderService implements ICreateOrderService {
     @Override
     public OrdersModel handleCodOrder(OrdersModel model) {
         OrdersModel preCreateOrder = preCreateOrderUseCase.execute(model);
-        preCreateOrder.setPaymentMethod(PaymentMethod.COD.getValue());
+        preCreateOrder.setPaymentMethod(PaymentMethod.valueOf(PaymentMethod.COD.getValue()));
         preCreateOrder.setStatus(PROCESSING);
         return createOrder(preCreateOrder);
     }
 
 
     private PaymentModel getPaymentModel(OrdersModel ordersModel) {
+        String description = null;
+        BigDecimal priceByMethod = ordersModel.getTotalPrice();
+        if(ordersModel.getPaymentMethod().equals(PaymentMethod.PAYPAL)){
+            priceByMethod = priceByMethod.divide(BigDecimal.valueOf(24));
+            description = PAYPAL.description;
+        }else if(ordersModel.getPaymentMethod().equals(PaymentMethod.MOMO)){
+            description = MOMO.description;
+        }
         return PaymentModel.builder()
                 .orderNumber(ordersModel.getOrderNumber())
                 .customerId(ordersModel.getCustomerId())
-                .total(ordersModel.getTotalPrice().doubleValue())
+                .total(priceByMethod.doubleValue())
                 .currency(USD.getConcurency())
-                .description(PAYPAL.description)
+                .description(description)
                 .intent(PAYPAL.intent)
-                .method(ordersModel.getPaymentMethod())
+                .method(String.valueOf(ordersModel.getPaymentMethod()))
                 .build();
     }
+
+
 }

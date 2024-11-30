@@ -21,9 +21,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
@@ -115,6 +113,19 @@ public class ScheduleService implements IScheduleService {
         return findScheduleByDepartAndArrivalAndDepartureTime(departureStationObject.getId(),arrivalStationObject.getId(),sqlTimestamp);
     }
 
+    @Override
+    public Map<Integer,List<ScheduleDTO>> findAllAvailableSchedules() {
+        List<Schedule> schedules = findScheduleService.findAllAvailable();
+        Map<Integer,List<ScheduleDTO>> scheduleDTOMap = new HashMap<>();
+        for(Schedule schedule : schedules){
+            schedule.getScheduleStations().sort(Comparator.comparingInt(ScheduleStation::getStopSequence));
+            List<AvailableSeatNumberForSchedule> totalAvailableSeat = findSeatService.findTotalAvailableSeatAtSchedule(schedule.getId());
+            List<ScheduleDTO> items = toSchedulesDTO(schedule,totalAvailableSeat);
+            scheduleDTOMap.put(schedule.getId(),items);
+        }
+        return scheduleDTOMap;
+    }
+
     private ScheduleDTO toScheduleDTOWithOnlyAt(Schedule schedule,Integer departureStationId,Integer arrivalStationId,Integer scheduleId
     ) {
         ScheduleStation departureScheduleStation = schedule.getScheduleStations().stream().filter(scheduleStation -> scheduleStation.getStation().getId().equals(departureStationId)).findFirst().get();
@@ -159,6 +170,8 @@ public class ScheduleService implements IScheduleService {
            index ++;
 
             ScheduleDTO scheduleDTO = ScheduleDTO.builder()
+                    .departureStationId(departureScheduleStation.getStation().getId())
+                    .arrivalStationId(arrivalScheduleStation.getStation().getId())
                     .departureStationName(departureScheduleStation.getStation().getName())
                     .arrivalStationName(arrivalScheduleStation.getStation().getName())
                     .departureTime(departureScheduleStation.getDepartureTime())

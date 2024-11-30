@@ -17,14 +17,27 @@ public class UpdateOrderUseCase implements BaseUseCase<Order, OrdersModel> {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Order execute(OrdersModel ordersModel) {
+
+
         Order order = repository.findByOrderNumber(ordersModel.getOrderNumber()).orElseThrow(
                 () -> new OrderNotFoundException(String.format("Order %s not found", ordersModel.getOrderNumber()))
         );
 
         order.setPaymentId(ordersModel.getPaymentId());
-        order.setPaymentMethod(ordersModel.getPaymentMethod());
+        order.setPaymentMethod(ordersModel.getPaymentMethod().getValue());
         order.setStatus(ordersModel.getStatus());
 
+        if(ordersModel.getIsHaveRoundTrip()){
+            Order roundTripOrder = repository.findByOrderNumber(ordersModel.getOrderNumber()+1).orElseThrow(
+                    () -> new OrderNotFoundException(String.format("Order %s not found", ordersModel.getOrderNumber()))
+            );
+
+            roundTripOrder.setPaymentId(ordersModel.getPaymentId());
+            roundTripOrder.setPaymentMethod(ordersModel.getPaymentMethod().getValue());
+            roundTripOrder.setStatus(ordersModel.getStatus());
+
+            repository.save(roundTripOrder);
+        }
         return repository.save(order);
     }
 }

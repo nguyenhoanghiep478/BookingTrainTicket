@@ -9,6 +9,7 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 public interface IScheduleService {
     CreateScheduleResponse create(CreateScheduleRequest request);
@@ -25,4 +26,6 @@ public interface IScheduleService {
     List<ScheduleDTO> findScheduleByDepartAndArrivalAndDepartureTime(Integer departureStationId, Integer arrivalStationId, Timestamp departureTime);
 
     List<ScheduleDTO> findScheduleByDepartAndArrivalNameAndDepartureTime(String departureStationId, String arrivalStationId, Timestamp sqlTimestamp);
+
+    Map<Integer,List<ScheduleDTO>> findAllAvailableSchedules();
 }

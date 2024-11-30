@@ -1,6 +1,7 @@
 package com.bookms.order.interfaceLayer.DTO;
 
 import com.bookms.order.core.domain.Entity.Status;
+import com.bookms.order.core.domain.State.PaymentMethod;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
@@ -31,8 +32,10 @@ public class OrderDTO {
     @NotNull(message = "arrival station id is required")
     private Integer arrivalStationId;
     @NotNull(message = "payment method is required")
-    private String paymentMethod;
+    private PaymentMethod paymentMethod;
     private Date createdDate;
     private String token;
-
+    private Boolean isHaveRoundTrip;
+    private Integer roundTripScheduleId;
+    private List<OrderItemDTO> roundTripItems;
 }

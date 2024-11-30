@@ -56,4 +56,9 @@ public class ScheduleRepository extends AbstractRepository<Schedule> implements 
         List<Object[]> objects =  scheduleJpaRepository.findScheduleByDepartAndArrivalName(departureStationId,arrivalStationId,arrivalTime);
         return objects;
     }
+
+    @Override
+    public List<Schedule> findAllAvailable() {
+        return scheduleJpaRepository.findAllAvailable();
+    }
 }

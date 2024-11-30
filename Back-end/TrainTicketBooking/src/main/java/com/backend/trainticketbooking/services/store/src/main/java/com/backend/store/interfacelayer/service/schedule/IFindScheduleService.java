@@ -23,4 +23,6 @@ public interface IFindScheduleService {
     List<Schedule> findByDepartAndArrival(Integer departureStationId, Integer arrivalStationId);
 
     List<Schedule> findByDepartAndArrivalName(String departureStation, String arrivalStation, Timestamp departureTime);
+
+    List<Schedule> findAllAvailable();
 }

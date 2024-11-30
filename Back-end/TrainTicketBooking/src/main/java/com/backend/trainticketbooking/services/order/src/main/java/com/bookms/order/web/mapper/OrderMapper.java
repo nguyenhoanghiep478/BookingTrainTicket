@@ -19,7 +19,7 @@ public class OrderMapper {
         }
         Order order = Order.builder()
                 .orderNumber(orderDTO.getOrderNumber())
-                .paymentMethod(orderDTO.getPaymentMethod())
+                .paymentMethod(orderDTO.getPaymentMethod().getValue())
                 .status(orderDTO.getStatus())
                 .totalPrice(totalPrice)
                 .orderItems(orderDTO.getOrderItems().stream()

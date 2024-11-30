@@ -3,6 +3,7 @@ package com.booksms.authentication.interfaceLayer.service;
 import com.booksms.authentication.core.exception.InvalidSessionLoginException;
 import com.booksms.authentication.interfaceLayer.DTO.Request.*;
 import com.booksms.authentication.interfaceLayer.DTO.Response.AuthResponse;
+import com.booksms.authentication.interfaceLayer.DTO.Response.UpdateUserResponse;
 import com.booksms.authentication.interfaceLayer.DTO.Response.UserResponseDTO;
 
 import javax.security.sasl.AuthenticationException;
@@ -30,4 +31,6 @@ public interface IAuthService {
     void logOut(String token, String refreshToken);
 
     void hardDeleteById(DeleteUserRequest request);
+
+    UpdateUserResponse updateUser(UpdateUserRequest request);
 }

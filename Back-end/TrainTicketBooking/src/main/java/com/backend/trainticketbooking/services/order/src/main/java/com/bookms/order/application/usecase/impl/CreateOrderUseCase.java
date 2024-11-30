@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 @Component
@@ -27,20 +29,44 @@ public class CreateOrderUseCase implements BaseUseCase<OrdersModel,OrdersModel>{
             result = updateOrderUseCase.execute(orderModel);
             return orderModel;
         }
+        if(orderModel.getIsHaveRoundTrip()){
+            List<Order> orders = orderMapperUseCase.toOrdersWithRoundTrip(orderModel);
+            Order forwardOrder = orders.get(0);
+            Order roundTripOrder = orders.get(1);
+            orderModel.setForwardSeatIds(getForwardTripSeatIds(orderModel));
+            orderModel.setRoundTripSeatIds(getRoundTripSeatIds(orderModel));
+            createSellOrderUseCase.execute(forwardOrder);
+            createSellOrderUseCase.execute(roundTripOrder);
+        }else{
+            Order order = orderMapperUseCase.toOrders(orderModel);
 
-        Order order = orderMapperUseCase.toOrders(orderModel);
+            if(order.getPaymentId() == null){
+                result = createBuyOrderUseCase.execute(order);
+            }
+            else{
+                result = createSellOrderUseCase.execute(order);
+            }
 
-        if(order.getPaymentId() == null){
-            result = createBuyOrderUseCase.execute(order);
-        }
-        else{
-            result = createSellOrderUseCase.execute(order);
         }
 
         return orderModel;
     }
 
+    private List<Integer> getRoundTripSeatIds(OrdersModel ordersModel) {
+        List<Integer> roundTripSeatIds = new ArrayList<>();
+        int seatSize = ordersModel.getSeatModels().size();
+        for(int i =seatSize/2 ;i<seatSize ; i++){
+            roundTripSeatIds.add(ordersModel.getSeatModels().get(i).getId());
+        }
+        return roundTripSeatIds;
+    }
 
-
-
+    private List<Integer> getForwardTripSeatIds(OrdersModel ordersModel) {
+        List<Integer> forwardTripSeatIds = new ArrayList<>();
+        int seatSize = ordersModel.getSeatModels().size();
+        for(int i =0 ;i<seatSize/2 ; i++){
+            forwardTripSeatIds.add(ordersModel.getSeatModels().get(i).getId());
+        }
+        return forwardTripSeatIds;
+    }
 }

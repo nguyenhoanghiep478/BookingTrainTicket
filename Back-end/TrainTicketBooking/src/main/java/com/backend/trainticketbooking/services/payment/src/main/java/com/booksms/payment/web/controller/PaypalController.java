@@ -46,7 +46,8 @@ public class PaypalController {
                             .intent(paymentDTO.getIntent())
                             .description(paymentDTO.getDescription())
                                 .build()
-                            ,ResponsePayment
+                            ,
+                    ResponsePayment
                             .builder()
                             .paymentMethod(paymentDTO.getMethod())
                             .orderNumber(paymentDTO.getOrderNumber())
