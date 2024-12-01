@@ -1,16 +1,12 @@
 package com.backend.store.interfacelayer.service.train.impl;
 
 import com.backend.store.application.model.TrainModel;
-import com.backend.store.application.usecase.Railcar.FindRailcarUseCase;
 import com.backend.store.application.usecase.Train.ModifiedRailcarUseCase;
 import com.backend.store.core.domain.entity.train.Railcar;
 import com.backend.store.core.domain.entity.train.Train;
 import com.backend.store.core.domain.state.ModifiedType;
 import com.backend.store.interfacelayer.dto.request.ModifiedRailcarsToTrainRequest;
 import com.backend.store.interfacelayer.service.railcar.IFindRailcarService;
-import com.backend.store.interfacelayer.service.railcar.impl.FindRailcarService;
-import com.backend.store.interfacelayer.service.train.IFindTrainService;
-import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -20,9 +16,8 @@ import org.modelmapper.ModelMapper;
 
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.when;
 
 
 class UpdateTrainServiceTest {

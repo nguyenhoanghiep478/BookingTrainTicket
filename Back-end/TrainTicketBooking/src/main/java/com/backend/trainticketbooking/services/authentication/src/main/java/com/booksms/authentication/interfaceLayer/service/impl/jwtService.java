@@ -1,5 +1,6 @@
 package com.booksms.authentication.interfaceLayer.service.impl;
 
+import com.booksms.authentication.core.constant.STATIC_VAR;
 import com.booksms.authentication.core.entity.UserCredential;
 import com.booksms.authentication.interfaceLayer.service.IJwtBlackListService;
 import com.booksms.authentication.interfaceLayer.service.IJwtService;
@@ -10,6 +11,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 
@@ -18,11 +20,14 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static com.booksms.authentication.core.constant.STATIC_VAR.AUTHOR_STRING_TOKEN;
+
 @Service
 @RequiredArgsConstructor
 public class jwtService implements IJwtService {
     private final IJwtBlackListService jwtBlackListService;
-
+    @Value("${JWT_SECRET_KEY}")
+    private String secretKey;
     @Override
     public String generateToken(UserCredential userCredential,String[] permissions) {
         return generateToken(new HashMap<>(), userCredential,permissions);
@@ -35,7 +40,7 @@ public class jwtService implements IJwtService {
     @Override
     public List<SimpleGrantedAuthority> extractAuthorities(String token) {
         Claims claims = extractAllClaims(token);
-        List<String> permissions = claims.get("scope",List.class);
+        List<String> permissions = claims.get(AUTHOR_STRING_TOKEN,List.class);
         return permissions.stream()
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
@@ -62,7 +67,7 @@ public class jwtService implements IJwtService {
         return Jwts.builder()
                 .setClaims(new HashMap<>())
                 .setSubject(userCredential.getEmail())
-                .claim("scope",permissionsByUserCredential)
+                .claim(AUTHOR_STRING_TOKEN,permissionsByUserCredential)
                 .claim("id",userCredential.getId())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24 * 7))
@@ -104,7 +109,7 @@ public class jwtService implements IJwtService {
         return Jwts.builder()
                 .setClaims(extraClaims)
                 .setSubject(user.getEmail())
-                .claim("scope",permission)
+                .claim(AUTHOR_STRING_TOKEN,permission)
                 .claim("id",user.getId())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 ))
@@ -113,8 +118,7 @@ public class jwtService implements IJwtService {
     }
 
     private SecretKey getSignKey() {
-        String secret = "3dfecff85e32a48ab67a977dd964d8d8848e4f048b5065d65e266d8b99b0291a";
-        byte[] keyBytes = Decoders.BASE64.decode(secret);
+        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 

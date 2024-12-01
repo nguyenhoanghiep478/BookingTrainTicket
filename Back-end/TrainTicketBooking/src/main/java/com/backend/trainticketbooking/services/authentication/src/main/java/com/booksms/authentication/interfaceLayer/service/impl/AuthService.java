@@ -1,5 +1,6 @@
 package com.booksms.authentication.interfaceLayer.service.impl;
 
+import com.booksms.authentication.application.eventPublisher.EventPublisher;
 import com.booksms.authentication.application.model.PermissionModel;
 import com.booksms.authentication.application.model.SearchUserCriteria;
 import com.booksms.authentication.application.model.UserModel;
@@ -54,6 +55,7 @@ public class AuthService  implements IAuthService {
     private final RedisService redisService;
     private final HandleFailedAttemptLoginUseCase handleFailedAttemptLoginUseCase;
     private final HardDeleteUserUseCase hardDeleteUserUseCase;
+    private final EventPublisher eventPublisher;
 
 
     @Override
@@ -323,4 +325,18 @@ public class AuthService  implements IAuthService {
         blockedByFailedAttemptLogin.forEach(handleFailedAttemptLoginUseCase::unlockUser);
     }
 
+    @KafkaListener(id = "consumer-logout-user",topics = "log-out-user")
+    private void handlePreventSpam(String token){
+       blockUserByToken(token);
+    }
+
+    private void blockUserByToken(String token){
+        token = token.replace("Bearer ","");
+        String  username = jwtService.extractUsername(token);;
+        UserCredential userCredential = findUserUseCase.findByUserName(username);
+        jwtService.addToBlacklist(token);
+        handleFailedAttemptLoginUseCase.lockUser(userCredential);
+
+        eventPublisher.publishEventLogoutUserId(userCredential.getId());
+    }
 }

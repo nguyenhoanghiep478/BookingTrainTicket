@@ -20,7 +20,16 @@ public class FindUserUseCase implements BaseUsecase<List<SearchUserCriteria>, Li
         }
         return userRepository.search(criteriaList);
     }
+    public UserCredential findByUserName(String email) {
+        SearchUserCriteria criteria = SearchUserCriteria.builder()
+                .key("email")
+                .operation(":")
+                .value(email)
+                .build();
 
+        List<UserCredential> list = execute(List.of(criteria));
+        return list.isEmpty() ? null : list.get(0);
+    }
     public UserCredential findById(Integer deleteUserId) {
         SearchUserCriteria criteria = SearchUserCriteria.builder()
                 .key("id")

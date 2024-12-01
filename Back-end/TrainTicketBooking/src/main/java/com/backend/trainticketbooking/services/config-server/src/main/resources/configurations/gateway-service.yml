@@ -27,6 +27,28 @@ springdoc:
         name: Role Service
 
 spring:
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: -1
+      retries: 1
+      properties:
+        enable:
+          idempotence: true
+        max:
+          in:
+            flight:
+              request:
+                per:
+                  connection: 5
+    consumer:
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      auto-offset-reset: earliest
+  redis:
+    host: localhost
+    port: 6379
+    timeout: 2000
   cloud:
     gateway:
       globalcors:
@@ -48,6 +70,16 @@ spring:
           enabled: true
           lower-case-service-id: true
       routes:
+        - id: authentication-service
+          uri: lb:ws://AUTHENTICATION-SERVICE # Sử dụng "ws://" thay cho "http://" để hỗ trợ WebSocket
+          predicates:
+            - Path=/websocket/auth/**
+          filters:
+            - PreserveHostHeader
+        - id: oauth-service
+          uri: https://7705f6ed629ceeb83f90f7ed0457c202.serveo.net
+          predicates:
+            - Path=/oauth2/**
         - id: customer-service
           uri: lb:http://CUSTOMER-SERVICE
           predicates:
@@ -142,3 +174,5 @@ spring:
     allow-circular-references: true
 server:
   port: 8031
+
+JWT_SECRET_KEY: ${JWT_SECRET_KEY}

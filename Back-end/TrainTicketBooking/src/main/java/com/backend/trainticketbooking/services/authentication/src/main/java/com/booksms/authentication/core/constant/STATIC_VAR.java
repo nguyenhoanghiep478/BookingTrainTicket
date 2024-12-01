@@ -18,4 +18,8 @@ public class STATIC_VAR {
     public static final String ACCOUNTING_ADMIN_ROLE_NAME= "ACCOUNTING MANAGER";
     public static final String TICKET_ADMIN_ROLE_NAME= "TICKET MANAGER";
 
+    public static final String AUTHOR_STRING_TOKEN ="X-User-Roles";
+    public static final String WEBSOCKET_TOPIC_LOGOUT_ENDPOINT= "/topic/logout";
+    public static final String WEBSOCKET_PREFIX_ENDPOINT = "/app";
+    public static final String WEBSOCKET_CONNECT_ENDPOINT = "/websocket/auth";
 }

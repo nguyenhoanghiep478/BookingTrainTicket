@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.http.HttpHeaders;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -15,6 +16,7 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
     @Autowired
     private AuthService authService;
 
+    private String secretKey;
     AuthenticationFilter() {
        super(Config.class);
    }
@@ -30,6 +32,7 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
                 String jwt = exchange.getRequest().getHeaders().get(HttpHeaders.AUTHORIZATION).get(0);
                 try{
                     authService.validateToken(jwt);
+
                 }catch (Exception e){
                     e.printStackTrace();
                 }

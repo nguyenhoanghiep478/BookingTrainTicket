@@ -52,13 +52,15 @@ public class UpdateUserUseCase implements BaseUsecase<UserModel, UserModel> {
             credential.setIsVerified(userModel.getIsVerified());
         }
         if(userModel.getPassword() != null){
+            validNotTheSameWithOldPassword(credential,userModel.getPassword());
             if(userModel.getOldPassword() != null){
                 validUpdatePassword(credential, userModel);
-                userModel.setPassword(passwordEncoder.encode(userModel.getPassword()));
+                credential.setPassword(passwordEncoder.encode(userModel.getPassword()));
+            }else{
+                credential.setPassword(passwordEncoder.encode(userModel.getPassword()));
             }
 
-            validNotTheSameWithOldPassword(credential,userModel.getPassword());
-            credential.setPassword(passwordEncoder.encode(userModel.getPassword()));
+
         }
         if(userModel.getIsFirstVisit() != null){
             credential.setIsFirstVisit(userModel.getIsFirstVisit());
