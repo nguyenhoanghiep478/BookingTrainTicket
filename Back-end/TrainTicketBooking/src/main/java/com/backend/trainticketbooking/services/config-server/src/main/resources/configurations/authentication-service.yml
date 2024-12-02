@@ -29,15 +29,10 @@ spring:
           google:
             client-id: ${GOOGLE_CLIENT_ID}
             client-secret: ${GOOGLE_CLIENT_SECRET}
-            redirect-uri: "https://95d2-113-22-113-75.ngrok-free.app/oauth2/callback"
             scope:
               - email
               - profile
-        provider:
-          google:
-            authorization-uri: https://accounts.google.com/o/oauth2/v2/auth
-            token-uri: https://oauth2.googleapis.com/token
-            user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
+#            redirect-uri: "https://5029-113-22-113-75.ngrok-free.app/login/oauth2/code/google"
 
   flyway:
     repair: true
@@ -72,5 +67,8 @@ spring:
 server:
   port: 5554
   forward-headers-strategy: framework
-
+logging:
+  level:
+    org.springframework.web.socket: DEBUG    # Log WebSocket events
+    org.springframework.messaging: DEBUG     # Log STOMP messaging
 JWT_SECRET_KEY: ${JWT_SECRET_KEY}

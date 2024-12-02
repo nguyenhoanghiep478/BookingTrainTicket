@@ -12,6 +12,9 @@ public class WebSocketAuth {
     @MessageMapping("/message")
     @SendTo("/topic/messages")
     public String sendMessage(String message){
+        log.info(message);
         return message;
     }
+
+
 }

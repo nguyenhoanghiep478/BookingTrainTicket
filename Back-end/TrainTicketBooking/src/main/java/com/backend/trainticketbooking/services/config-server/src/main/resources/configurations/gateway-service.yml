@@ -63,23 +63,29 @@ spring:
               - DELETE
               - OPTIONS
             allowedHeaders:
-              - "*"
+              - "Content-Type"
+              - "X-Auth-Token"
+              - "Origin"
+              - "Authorization"
             allowCredentials: true
+
       discovery:
         locator:
           enabled: true
           lower-case-service-id: true
       routes:
-        - id: authentication-service
+        - id: authentication-socket-service
           uri: lb:ws://AUTHENTICATION-SERVICE # Sử dụng "ws://" thay cho "http://" để hỗ trợ WebSocket
           predicates:
             - Path=/websocket/auth/**
           filters:
-            - PreserveHostHeader
-        - id: oauth-service
-          uri: https://7705f6ed629ceeb83f90f7ed0457c202.serveo.net
+            - RemoveRequestHeader=Sec-WebSocket-Protocol
+        - id: oauth2-auth-service
+          uri: lb://AUTH-SERVICE # Tên của Auth-Service
           predicates:
-            - Path=/oauth2/**
+            - Path=/login/oauth2/code/**
+          filters:
+            - RemoveRequestHeader=Sec-WebSocket-Protocol
         - id: customer-service
           uri: lb:http://CUSTOMER-SERVICE
           predicates:

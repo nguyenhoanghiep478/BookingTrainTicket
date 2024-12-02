@@ -19,6 +19,6 @@ public class RedisConfig {
                 .hashValue(new StringRedisSerializer())
                 .build();
 
-        return new ReactiveRedisTemplate<>(connectionFactory, serializationContext);
+        return new ReactiveRedisTemplate<String,String>(connectionFactory, serializationContext);
     }
 }

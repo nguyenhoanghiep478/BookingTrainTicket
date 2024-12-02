@@ -8,6 +8,6 @@ import java.util.List;
 
 public interface IStationService {
     CreateStationResponse create(CreateStationRequest station);
-
+    boolean isValidStation(String stationName);
     List<StationDTO> getAll();
 }

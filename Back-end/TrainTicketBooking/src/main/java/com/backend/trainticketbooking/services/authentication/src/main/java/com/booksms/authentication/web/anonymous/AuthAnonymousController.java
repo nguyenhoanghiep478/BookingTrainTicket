@@ -64,7 +64,7 @@ public class AuthAnonymousController {
                 .secure(true) // Nếu sử dụng HTTPS
                 .path("/") // Cookie áp dụng cho toàn bộ ứng dụng
                 .maxAge(7 * 24 * 60 * 60) // Thời gian sống của cookie (7 ngày)
-                .sameSite("Strict") // Ngăn chặn gửi cookie đến bên thứ ba
+                .sameSite("None")
                 .build();
 
         return ResponseEntity.ok()

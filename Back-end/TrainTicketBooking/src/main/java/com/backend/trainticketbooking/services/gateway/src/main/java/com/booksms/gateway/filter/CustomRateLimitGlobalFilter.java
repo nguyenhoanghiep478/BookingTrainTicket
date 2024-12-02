@@ -24,8 +24,11 @@ public class CustomRateLimitGlobalFilter  implements GlobalFilter,Ordered  {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         String ip = exchange.getRequest().getRemoteAddress().getAddress().getHostAddress();
+
+        log.info("Incoming request from " + ip);
         return customRedisRateLimit.isBlocked(ip)
                 .flatMap(isBlocked -> {
+                    log.info("checking blocked " + ip);
                     if (isBlocked) {
                         log.warn("IP " + ip + " is blocked.");
                         exchange.getResponse().setStatusCode(HttpStatus.TOO_MANY_REQUESTS);
@@ -43,6 +46,7 @@ public class CustomRateLimitGlobalFilter  implements GlobalFilter,Ordered  {
                                     exchange.getResponse().setStatusCode(HttpStatus.TOO_MANY_REQUESTS);
                                     return exchange.getResponse().setComplete();
                                 }
+                                log.info("pass spam prevent :" +ip);
                                 return chain.filter(exchange);
                             });
                 });
