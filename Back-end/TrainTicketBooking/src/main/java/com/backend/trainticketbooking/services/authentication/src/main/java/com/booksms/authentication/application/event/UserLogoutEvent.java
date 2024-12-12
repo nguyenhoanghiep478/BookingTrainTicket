@@ -4,11 +4,13 @@ import lombok.Getter;
 import org.springframework.context.ApplicationEvent;
 @Getter
 public class UserLogoutEvent extends ApplicationEvent {
-    private final Integer userId;
+    private final String token;
+    private final Boolean isBlocked;
 
-    public UserLogoutEvent(Object source,Integer userId) {
+    public UserLogoutEvent(Object source,String token,Boolean isBlocked) {
         super(source);
-        this.userId = userId;
+        this.token = token;
+        this.isBlocked = isBlocked;
     }
 
 

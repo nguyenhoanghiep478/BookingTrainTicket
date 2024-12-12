@@ -10,6 +10,7 @@ import com.booksms.authentication.core.entity.UserCredential;
 import com.booksms.authentication.interfaceLayer.service.IJwtService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -25,6 +26,7 @@ import java.util.*;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class CustomOauth2UserService extends DefaultOAuth2UserService {
 
     private final RegisterUseCase registerUseCase;
@@ -35,6 +37,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         OAuth2User oAuth2User = super.loadUser(userRequest);
+        log.info(oAuth2User.getAttributes().toString());
         String email = oAuth2User.getAttribute("email");
 
         List<UserCredential> existingUser = findUserUseCase.execute(List.of(SearchUserCriteria.builder()
@@ -54,6 +57,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
             String encodedPassword = bCrypt.encode(randomPassword);
             user.setPassword(encodedPassword);
             user.setPhone(oAuth2User.getAttribute("phone_number"));
+            user.setIsVerified(true);
             user = registerUseCase.execute(user);
         } else {
             user = modelMapper.map(existingUser.get(0), UserModel.class);

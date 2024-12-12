@@ -5,6 +5,7 @@ import com.backend.store.application.usecase.Route.FindRouteUseCase;
 import com.backend.store.application.usecase.Train.FindTrainUseCase;
 import com.backend.store.core.domain.entity.schedule.*;
 import com.backend.store.core.domain.entity.train.Train;
+import com.backend.store.core.domain.exception.InvalidStopSequence;
 import com.backend.store.core.domain.exception.ScheduleExistedException;
 import com.backend.store.core.domain.exception.TrainNotAvailableException;
 import com.backend.store.core.domain.repository.IScheduleRepository;
@@ -13,6 +14,7 @@ import static com.backend.store.core.domain.state.TrainStatus.ON_WORKING;
 
 import com.backend.store.core.domain.state.StaticVar;
 import com.backend.store.core.domain.state.TrainStatus;
+import jakarta.ws.rs.BadRequestException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -57,7 +59,19 @@ public class CreateScheduleUseCase {
                 }
 
                 Schedule schedule = new Schedule();
-                LocalDate tomorrow = LocalDate.now().plusDays(1);
+                LocalDate startDate;
+                if(scheduleModel.getStartTime() != null){
+                    Timestamp startTime = toUTCVietNam(Timestamp.valueOf(scheduleModel.getStartTime()));
+                    if(startTime.before(Timestamp.from(Instant.now()))) {
+                        throw new InvalidStopSequence("Thời gian tạo không được trước thời gian hiện tại");
+                    }
+                    startDate = startTime.toInstant()
+                            .atZone(ZoneId.of("Asia/Ho_Chi_Minh"))
+                            .toLocalDate();
+                }else{
+                    startDate = LocalDate.now().minusDays(1);
+                }
+                LocalDate tomorrow = startDate;
 
                 LocalTime nineAM = LocalTime.of(9, 0);
 
@@ -107,5 +121,15 @@ public class CreateScheduleUseCase {
                 return schedule;
         }
 
+        private Timestamp toUTCVietNam(Timestamp timestamp){
+            LocalDateTime localDateTime = timestamp.toLocalDateTime();
 
+            // Chuyển sang UTC (từ múi giờ Việt Nam)
+            ZonedDateTime vietnamZonedDateTime = localDateTime.atZone(ZoneId.of("Asia/Ho_Chi_Minh"));
+            ZonedDateTime utcZonedDateTime = vietnamZonedDateTime.withZoneSameInstant(ZoneId.of("UTC"));
+
+            // Chuyển đổi UTC về Timestamp
+            Timestamp utcTimestamp = Timestamp.valueOf(utcZonedDateTime.toLocalDateTime());
+            return timestamp;
+        }
 }

@@ -67,7 +67,7 @@ public interface SeatJpaRepository extends JpaRepository<Seat, Integer> {
             "AND arr_ss.station_id = :arrivalStationId " +
             "AND dep_ss.stop_sequence < arr_ss.stop_sequence " +
             "AND (ts.ticket_id IS NULL OR s.is_available = TRUE " +
-            "OR (tkt.departure_station_id NOT BETWEEN dep_ss.station_id AND arr_ss.station_id " +
+            "AND (tkt.departure_station_id NOT BETWEEN dep_ss.station_id AND arr_ss.station_id " +
             "AND tkt.arrival_station_id NOT BETWEEN dep_ss.station_id AND arr_ss.station_id)) " +
             "GROUP BY r.name " +
             "ORDER BY r.name",

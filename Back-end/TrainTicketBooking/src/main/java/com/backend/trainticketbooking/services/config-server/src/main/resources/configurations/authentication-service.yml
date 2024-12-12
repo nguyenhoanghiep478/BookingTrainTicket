@@ -32,8 +32,12 @@ spring:
             scope:
               - email
               - profile
-#            redirect-uri: "https://5029-113-22-113-75.ngrok-free.app/login/oauth2/code/google"
-
+            redirect-uri: ${SERVER_HOST}/login/oauth2/code/google
+        provider:
+          google:
+            user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
+        authorization.request-repository:
+          type: COOKIE
   flyway:
     repair: true
     baseline-on-migrate: true
@@ -65,10 +69,17 @@ spring:
       value-deserializer: org.apache.kafka.common.serialization.ByteArrayDeserializer
       auto-offset-reset: earliest
 server:
+  servlet:
+    session:
+      cookie:
+        same-site: lax
+      timeout: 30m
   port: 5554
   forward-headers-strategy: framework
 logging:
   level:
-    org.springframework.web.socket: DEBUG    # Log WebSocket events
-    org.springframework.messaging: DEBUG     # Log STOMP messaging
+    org.springframework.web.socket: DEBUG
+    org.springframework.messaging: DEBUG
+    com.booksms.authentication: DEBUG # Log STOMP messaging
 JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+HOME_REDIRECT_URL: ${HOME_FRONT_END_URL}

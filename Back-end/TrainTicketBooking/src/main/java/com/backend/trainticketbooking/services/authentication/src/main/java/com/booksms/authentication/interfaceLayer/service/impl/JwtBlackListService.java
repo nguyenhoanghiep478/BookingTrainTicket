@@ -26,7 +26,7 @@ public class JwtBlackListService implements IJwtBlackListService {
 
     @Override
     public void addToBlackList(String jwtToken) {
-        redisTemplate.opsForValue().set(jwtToken,"blacklisted", STATIC_VAR.EXPIRATION_JWT_IN_MILLISECONDS, TimeUnit.MILLISECONDS);
+        redisTemplate.opsForValue().set(jwtToken,"blacklisted", STATIC_VAR.EXPIRATION_REFRESH_JWT_IN_MILLISECONDS, TimeUnit.MILLISECONDS);
         String value =  redisTemplate.opsForValue().get(jwtToken);
         if(value == null){
             log.error("faild to add token {} to redis",jwtToken);

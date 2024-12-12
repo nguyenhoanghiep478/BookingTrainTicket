@@ -19,6 +19,7 @@ public class RouteValidator {
             "/api/v1/station/anonymous/",
             "/api/v1/railcar/anonymous/",
             "/api/v1/store/anonymous/",
+            "/websocket/auth",
             "/eureka"
     );
     public Predicate<ServerHttpRequest> isSecured =

@@ -20,7 +20,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.booksms.authentication.core.constant.STATIC_VAR.AUTHOR_STRING_TOKEN;
+import static com.booksms.authentication.core.constant.STATIC_VAR.*;
 
 @Service
 @RequiredArgsConstructor
@@ -70,7 +70,7 @@ public class jwtService implements IJwtService {
                 .claim(AUTHOR_STRING_TOKEN,permissionsByUserCredential)
                 .claim("id",userCredential.getId())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24 * 7))
+                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_REFRESH_JWT_IN_MILLISECONDS))
                 .signWith(getSignKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
@@ -112,7 +112,7 @@ public class jwtService implements IJwtService {
                 .claim(AUTHOR_STRING_TOKEN,permission)
                 .claim("id",user.getId())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 ))
+                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_ACCESS_JWT_IN_MILLISECONDS))
                 .signWith(getSignKey(), SignatureAlgorithm.HS256)
                 .compact();
     }

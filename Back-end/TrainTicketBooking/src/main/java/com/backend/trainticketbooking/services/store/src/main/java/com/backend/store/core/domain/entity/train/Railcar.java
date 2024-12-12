@@ -65,7 +65,7 @@ public class Railcar extends AbstractEntity {
         if(isHaveFloor){
             for(int i =0 ;i< capacityPerFloor;i++){
                 Seat seat = new Seat();
-                seat.setSeatClass(SeatClass.BUSINESS);
+                seat.setSeatClass(railcarType.getSeatClass());
                 seat.setIsAvailable(false);
                 seat.setRailcar(this);
                 seat.setSeatType(railcarType.getSeatType());

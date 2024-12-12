@@ -17,12 +17,18 @@ import com.backend.store.interfacelayer.service.schedule.IFindScheduleService;
 import com.backend.store.interfacelayer.service.schedule.IScheduleService;
 import com.backend.store.interfacelayer.service.seat.IFindSeatService;
 import com.backend.store.interfacelayer.service.station.impl.FindStationService;
+import dev.langchain4j.agent.tool.P;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -75,7 +81,9 @@ public class ScheduleService implements IScheduleService {
         }
         List<ScheduleDTO> scheduleDTOS = new ArrayList<>();
         for(Schedule schedule : schedules){
-            // swap arrival and departure because we want to move back from old trip
+            if(toScheduleDTOWithOnlyAt(schedule,arrivalStationId,departureStationId,schedule.getId()) == null){
+                continue;
+            }
             scheduleDTOS.add(toScheduleDTOWithOnlyAt(schedule,arrivalStationId,departureStationId,schedule.getId()));
         }
 
@@ -84,13 +92,21 @@ public class ScheduleService implements IScheduleService {
 
     @Override
     public List<ScheduleDTO> findScheduleByDepartAndArrival(Integer departureStationId, Integer arrivalStationId) {
-        List<Schedule> schedules = findScheduleService.findByDepartAndArrival(departureStationId,arrivalStationId);
+        List<Schedule> schedules = null;
+        if(departureStationId != null && arrivalStationId != null){
+            schedules = findScheduleService.findByDepartAndArrival(departureStationId,arrivalStationId);
+        }else{
+            schedules = findScheduleService.findAllAvailable();
+        }
         if(schedules == null){
             return null;
         }
         List<ScheduleDTO> scheduleDTOS = new ArrayList<>();
         for(Schedule schedule : schedules){
-            scheduleDTOS.add(toScheduleDTOWithOnlyAt(schedule,departureStationId,arrivalStationId,schedule.getId()));
+            ScheduleDTO data = toScheduleDTOWithOnlyAt(schedule,departureStationId,arrivalStationId,schedule.getId());
+            if(data!= null){
+                scheduleDTOS.add(data);
+            }
         }
 
         return scheduleDTOS;
@@ -102,16 +118,48 @@ public class ScheduleService implements IScheduleService {
         if(departureTime == null){
             return scheduleDTOS;
         }
-        return scheduleDTOS.stream().filter(scheduleDTO -> scheduleDTO.getDepartureTime().after(departureTime)).toList();
+        if(scheduleDTOS == null){
+            return null;
+        }
+        return handleInDay(scheduleDTOS,departureTime);
+    }
+
+    private List<ScheduleDTO> handleInDay(List<ScheduleDTO> scheduleDTOS,Timestamp departureTime) {
+        Timestamp current = new Timestamp(System.currentTimeMillis());
+        if(departureTime.before(current)){
+            return null;
+        }
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(departureTime);
+        calendar.set(Calendar.HOUR_OF_DAY, 23);
+        calendar.set(Calendar.MINUTE, 59);
+        calendar.set(Calendar.SECOND, 59);
+        calendar.set(Calendar.MILLISECOND, 999);
+        Date endOfDay = calendar.getTime();
+
+        return scheduleDTOS.stream()
+                .filter(scheduleDTO -> scheduleDTO.getDepartureTime().after(departureTime)
+                        && scheduleDTO.getDepartureTime().before(endOfDay))
+                .collect(Collectors.toList());
     }
 
     @Override
     public List<ScheduleDTO> findScheduleByDepartAndArrivalNameAndDepartureTime(String departureStation, String arrivalStation, Timestamp sqlTimestamp) {
-        Station departureStationObject = findStationService.findByName(departureStation);
-        Station arrivalStationObject = findStationService.findByName(arrivalStation);
-
-        return findScheduleByDepartAndArrivalAndDepartureTime(departureStationObject.getId(),arrivalStationObject.getId(),sqlTimestamp);
+        Station departureStationObject = null;
+        Station arrivalStationObject = null;
+        if(departureStation != null && !departureStation.equals("None")){
+            departureStationObject = findStationService.findByName(departureStation);
+        }
+        if(arrivalStation != null && !arrivalStation.equals("None")){
+            arrivalStationObject = findStationService.findByName(arrivalStation);
+        }
+        Integer departureStationId = departureStationObject == null ? null : departureStationObject.getId();
+        Integer arrivalStationId = arrivalStationObject == null ? null : arrivalStationObject.getId();
+        return findScheduleByDepartAndArrivalAndDepartureTime(departureStationId,arrivalStationId,sqlTimestamp);
     }
+
+
 
     @Override
     public Map<Integer,List<ScheduleDTO>> findAllAvailableSchedules() {
@@ -126,15 +174,70 @@ public class ScheduleService implements IScheduleService {
         return scheduleDTOMap;
     }
 
+    @Override
+    public Timestamp toTimeStamp(String departureTime) {
+        Timestamp result = null;
+        try {
+            departureTime = departureTime.replace(" ", "+");
+            OffsetDateTime odt = OffsetDateTime.parse(departureTime);
+
+// Lấy múi giờ Việt Nam
+            ZoneId hcmZone = ZoneId.of("Asia/Ho_Chi_Minh");
+
+// Chuyển đổi sang ZonedDateTime
+            ZonedDateTime hcmZonedDateTime = odt.atZoneSameInstant(hcmZone);
+
+// Đặt thời gian về 00:00 cùng ngày
+            ZonedDateTime startOfDay = hcmZonedDateTime.toLocalDate().atStartOfDay(hcmZone);
+
+// Chuyển đổi thành LocalDateTime và tạo Timestamp
+            result = Timestamp.valueOf(startOfDay.toLocalDateTime());
+
+            // Chuyển đổi sang Timestamp
+
+
+        } catch (Exception e) {
+           return null;
+        }
+        return result;
+    }
+
+    @Override
+    public List<ScheduleDTO> findRoundTripWithName(String departureStationId, String arrivalStationId,Integer scheduleId ,Timestamp departureTimestamp) {
+        Integer departureId = findStationService.findByName(departureStationId).getId();
+        Integer arrivalId = findStationService.findByName(arrivalStationId).getId();
+        List<ScheduleDTO> scheduleDTOS = findRoundTrip(departureId,arrivalId,scheduleId);
+        if(scheduleDTOS == null){
+            return null;
+        }
+        return handleInDay(scheduleDTOS,departureTimestamp);
+    }
+
     private ScheduleDTO toScheduleDTOWithOnlyAt(Schedule schedule,Integer departureStationId,Integer arrivalStationId,Integer scheduleId
     ) {
-        ScheduleStation departureScheduleStation = schedule.getScheduleStations().stream().filter(scheduleStation -> scheduleStation.getStation().getId().equals(departureStationId)).findFirst().get();
-        ScheduleStation arrivalScheduleStation = schedule.getScheduleStations().stream().filter(scheduleStation -> scheduleStation.getStation().getId().equals(arrivalStationId)).findFirst().get();
-        List<RailcarDTO> railcarDTOS = findSeatService.getListRailcarWithSeatAvailableIn(departureStationId, arrivalStationId, scheduleId);
+        ScheduleStation departureScheduleStation;
+        ScheduleStation arrivalScheduleStation;
+        if(departureStationId != null && arrivalStationId != null){
+            departureScheduleStation = schedule.getScheduleStations().stream().filter(scheduleStation -> scheduleStation.getStation().getId().equals(departureStationId)).findFirst().get();
+            arrivalScheduleStation = schedule.getScheduleStations().stream().filter(scheduleStation -> scheduleStation.getStation().getId().equals(arrivalStationId)).findFirst().get();
+        }else{
+            if(departureStationId != null){
+                departureScheduleStation = schedule.getScheduleStations().stream().filter(scheduleStation -> scheduleStation.getStation().getId().equals(departureStationId)).findFirst().get();
+                arrivalScheduleStation = schedule.getScheduleStations().stream().filter(scheduleStation -> scheduleStation.getStopSequence().equals(24)).findFirst().get();
+            }else{
+                arrivalScheduleStation = schedule.getScheduleStations().stream().filter(scheduleStation -> scheduleStation.getStation().getId().equals(arrivalStationId)).findFirst().get();
+                departureScheduleStation = schedule.getScheduleStations().stream().filter(scheduleStation -> scheduleStation.getStopSequence().equals(arrivalScheduleStation.getStopSequence()-1)).findFirst().get();
+            }
+        }
+
+        List<RailcarDTO> railcarDTOS = findSeatService.getListRailcarWithSeatAvailableIn(departureScheduleStation.getStation().getId(), arrivalScheduleStation.getStation().getId(), scheduleId);
+        if(railcarDTOS == null || railcarDTOS.isEmpty()){
+            return null;
+        }
         return ScheduleDTO.builder()
                 .id(schedule.getId())
-                .departureStationId(departureStationId)
-                .arrivalStationId(arrivalStationId)
+                .departureStationId(departureScheduleStation.getStation().getId())
+                .arrivalStationId(arrivalScheduleStation.getStation().getId())
                 .arrivalStationName(arrivalScheduleStation.getStation().getName())
                 .departureStationName(departureScheduleStation.getStation().getName())
                 .trainName(schedule.getTrain().getTrainName())

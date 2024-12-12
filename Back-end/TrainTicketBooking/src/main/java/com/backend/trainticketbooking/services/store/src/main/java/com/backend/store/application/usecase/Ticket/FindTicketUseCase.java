@@ -61,4 +61,8 @@ public class FindTicketUseCase {
 
         return new ArrayList<>(notificationMap.values());
     }
+
+    public List<Ticket> findTicketByDepartureIdAndArrivalIdAndDepartureTime(Integer id, Integer id1, Timestamp departureTime) {
+        return ticketRepository.findByDepartureIdAndArrivalIdAndDepartureTime(id,id1,departureTime);
+    }
 }

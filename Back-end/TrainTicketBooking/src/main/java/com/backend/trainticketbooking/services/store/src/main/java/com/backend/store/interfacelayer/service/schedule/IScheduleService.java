@@ -28,4 +28,8 @@ public interface IScheduleService {
     List<ScheduleDTO> findScheduleByDepartAndArrivalNameAndDepartureTime(String departureStationId, String arrivalStationId, Timestamp sqlTimestamp);
 
     Map<Integer,List<ScheduleDTO>> findAllAvailableSchedules();
+
+    Timestamp toTimeStamp(String departureTimestamp);
+
+    List<ScheduleDTO> findRoundTripWithName(String departureStationId, String arrivalStationId,Integer scheduleId, Timestamp departureTimestamp);
 }

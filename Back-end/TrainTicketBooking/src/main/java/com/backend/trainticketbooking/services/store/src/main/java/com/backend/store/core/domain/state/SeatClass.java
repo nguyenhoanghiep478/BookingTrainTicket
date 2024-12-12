@@ -10,6 +10,7 @@ import static com.backend.store.core.domain.state.StaticVar.*;
 public enum SeatClass {
     ECONOMY(BUSINESS_SEAT_PRICE),
     BUSINESS(ECONOMY_SEAT_PRICE),
+    BUSINESS_LAGER(BUSINESS_LAGER_SEAT_PRICE),
     NON_BUSINESS(NONE_BUSINESS_SEAT_PRICE);
 
     final BigDecimal price;

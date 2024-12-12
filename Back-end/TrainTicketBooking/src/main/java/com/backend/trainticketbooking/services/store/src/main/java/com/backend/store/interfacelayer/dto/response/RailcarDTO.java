@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class RailcarDTO {
+    private Integer id;
     private String name;
     private RailcarType railcarType;
     private Integer capacity;

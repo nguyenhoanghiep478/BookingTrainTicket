@@ -17,6 +17,11 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
+import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizationRequestResolver;
+import org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizationRequestRepository;
+import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -42,7 +47,9 @@ public class AuthConfiguration {
                 .cors(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
+                                "/websocket/auth",
                                 "/api/v1/auth/anonymous/*",
+                                "/api/v1/auth/anonymous/oauth2/login",
                                 "/api/v1/marketing/anonymous/*",
                                 "/api/v1/payment/anonymous/*",
                                 "/api/v1/order/anonymous/*",
@@ -52,9 +59,6 @@ public class AuthConfiguration {
                                 "/api/v1/auth/anonymous/swagger-ui/**",
                                 "/api/v1/auth/anonymous/swagger-ui.html"
                         ).permitAll()
-                        .requestMatchers("/api/v1/auth/google/*")
-                        .authenticated()
-                        .requestMatchers("/api/v1/auth/*").hasAuthority("USER")
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2->oauth2
@@ -62,6 +66,11 @@ public class AuthConfiguration {
                                 .userService(customOauth2UserService)
                         )
                         .successHandler(oauth2SuccessHandler)
+                        .authorizationEndpoint(ae ->
+                                        ae.authorizationRequestRepository(new HttpCookieOAuth2AuthorizationRequestRepository())
+                                )
+
+
                 )
                 .exceptionHandling(ex -> ex.accessDeniedHandler(accessDeniedHandle))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
@@ -93,4 +102,13 @@ public class AuthConfiguration {
         return config.getAuthenticationManager();
     }
 
+    @Bean
+    public DefaultOAuth2AuthorizationRequestResolver resolver(ClientRegistrationRepository clientRegistrationRepository){
+        return new DefaultOAuth2AuthorizationRequestResolver(clientRegistrationRepository, "/oauth2/login");
+    }
+
+    @Bean
+    public AuthorizationRequestRepository<OAuth2AuthorizationRequest> cookieAuthorizationRequestRepository() {
+        return new HttpSessionOAuth2AuthorizationRequestRepository();
+    }
 }

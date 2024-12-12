@@ -1,5 +1,6 @@
 package com.booksms.authentication.config;
 
+import com.booksms.authentication.application.eventPublisher.EventPublisher;
 import com.booksms.authentication.core.constant.STATIC_VAR;
 import com.booksms.authentication.core.exception.BlackListedTokenException;
 import com.booksms.authentication.core.exception.TokenExpiration;
@@ -69,6 +70,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
           }
 
           String token = header.replace("Bearer ", "");
+
+          if(jwtService.isBlacklisted(token)){
+              EventPublisher.getInstance().publishEventLogoutUser(token,true);
+              throw new AccessDeniedException("Your jwt has been blocked");
+          }
+
           final String username;
           try{
               username = jwtService.extractUsername(token);;

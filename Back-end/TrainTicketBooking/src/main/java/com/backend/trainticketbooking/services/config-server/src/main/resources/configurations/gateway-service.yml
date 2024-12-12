@@ -50,6 +50,9 @@ spring:
     port: 6379
     timeout: 2000
   cloud:
+    loadbalancer:
+      sticky-session:
+        enabled: true
     gateway:
       globalcors:
         cors-configurations:
@@ -68,24 +71,28 @@ spring:
               - "Origin"
               - "Authorization"
             allowCredentials: true
-
       discovery:
         locator:
           enabled: true
           lower-case-service-id: true
       routes:
-        - id: authentication-socket-service
-          uri: lb:ws://AUTHENTICATION-SERVICE # Sử dụng "ws://" thay cho "http://" để hỗ trợ WebSocket
+        - id: authentication-websocket-route
+          uri: lb:ws://AUTHENTICATION-SERVICE  # URL của dịch vụ Authentication chạy WebSocket
           predicates:
-            - Path=/websocket/auth/**
+            - Path=/websocket/auth  # Đường dẫn WebSocket
           filters:
-            - RemoveRequestHeader=Sec-WebSocket-Protocol
+            - PreserveHostHeader
+            - RewriteResponseHeader=Upgrade,websocket
+            - RewriteResponseHeader=Connection,upgrade
+            - AddRequestHeader=Sec-WebSocket-Version,13
+            - AddRequestHeader=Sec-WebSocket-Key,vO/qpi5TM/g4ypQsIuH/xQ==
+            - AddRequestHeader=Sec-WebSocket-Extensions,permessage-deflate; client_max_window_bits
         - id: oauth2-auth-service
-          uri: lb://AUTH-SERVICE # Tên của Auth-Service
+          uri: lb://AUTHENTICATION-SERVICE # Tên của Auth-Service
           predicates:
-            - Path=/login/oauth2/code/**
+            - Path=/login/**, /oauth2/**, /callback/**
           filters:
-            - RemoveRequestHeader=Sec-WebSocket-Protocol
+            - PreserveHostHeader
         - id: customer-service
           uri: lb:http://CUSTOMER-SERVICE
           predicates:
@@ -96,6 +103,12 @@ spring:
           uri: lb:http://ORDER-SERVICE
           predicates:
             - Path=/api/v1/order/**
+          filters:
+            - AuthenticationFilter
+        - id: statistic-service
+          uri: lb:http://STORE-SERVICE
+          predicates:
+            - Path=/api/v1/statistic/**
           filters:
             - AuthenticationFilter
         - id: store-service
@@ -170,6 +183,7 @@ spring:
             - Path=/api/v1/auth/**
           filters:
             - AuthenticationFilter
+            - PreserveHostHeader
         - id: role-service
           uri: lb:http://AUTHENTICATION-SERVICE
           predicates:
@@ -180,5 +194,6 @@ spring:
     allow-circular-references: true
 server:
   port: 8031
+
 
 JWT_SECRET_KEY: ${JWT_SECRET_KEY}

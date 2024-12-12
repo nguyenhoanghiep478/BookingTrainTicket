@@ -9,7 +9,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.sql.Timestamp;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +20,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/v1/schedule/anonymous")
 @RequiredArgsConstructor
+
 public class ScheduleAnonymousController {
     private final IScheduleService scheduleService;
 
@@ -75,26 +79,39 @@ public class ScheduleAnonymousController {
 
     @GetMapping("/get-by-departure-and-arrival-name")
     public ResponseEntity<?> getScheduleByDepartAndArrivalName(
-            @RequestParam("departureStation") String departureStationId,
-            @RequestParam("arrivalStation") String arrivalStationId,
-            @RequestParam(value = "departureTime",required = false) String departureTime
+            @RequestParam(value = "departureStation",required = false) String departureStationId,
+            @RequestParam(value = "arrivalStation",required = false) String arrivalStationId,
+            @RequestParam(value = "departureTime",required = false) String departureTime,
+            @RequestParam(value = "arrivalTime" ,required = false) String arrivalTime
     ) {
-        Timestamp sqlTimestamp = null;
+        Timestamp departureTimestamp = null;
+        Timestamp arrivalTimestamp = null;
         if(departureTime!=null){
-            try {
-                departureTime = departureTime.replace(" ", "+");
-
-
-                OffsetDateTime odt = OffsetDateTime.parse(departureTime);
-
-                // Chuyển đổi sang Timestamp
-                sqlTimestamp = Timestamp.valueOf(odt.atZoneSameInstant(ZoneOffset.UTC).toLocalDateTime());
-            } catch (Exception e) {
-                return ResponseEntity.badRequest().body("Invalid timestamp format: " + e.getMessage());
-            }
+            departureTimestamp = scheduleService.toTimeStamp(departureTime);
         }
 
-        List<ScheduleDTO> response = scheduleService.findScheduleByDepartAndArrivalNameAndDepartureTime(departureStationId,arrivalStationId,sqlTimestamp);
+        if(arrivalTime != null){
+            arrivalTimestamp = scheduleService.toTimeStamp(arrivalTime);
+        }
+
+        List<ScheduleDTO> response = scheduleService.findScheduleByDepartAndArrivalNameAndDepartureTime(departureStationId,arrivalStationId,departureTimestamp);
+
+            if(arrivalTimestamp !=null){
+                List<ScheduleDTO> responseRoundTrip = null;
+                if(response != null){
+                     responseRoundTrip = scheduleService.findRoundTripWithName(departureStationId,arrivalStationId,response.get(0).getId(),arrivalTimestamp);
+                }
+                List<List<ScheduleDTO>> roundTripResponse = new ArrayList<>();
+                roundTripResponse.add(response);
+                roundTripResponse.add(responseRoundTrip);
+                return ResponseEntity.ok(ResponseDTO.builder()
+                        .status(200)
+                        .message(List.of("get schedule by departure and arrival successful"))
+                        .result(roundTripResponse)
+                        .build());
+            }
+
+
         return ResponseEntity.ok(ResponseDTO.builder()
                 .status(200)
                 .message(List.of("get schedule by departure and arrival successful"))

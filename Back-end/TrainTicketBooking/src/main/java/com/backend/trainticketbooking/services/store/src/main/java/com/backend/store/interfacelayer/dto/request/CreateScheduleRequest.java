@@ -12,4 +12,5 @@ import lombok.NoArgsConstructor;
 public class CreateScheduleRequest {
     private Integer trainId;
     private Integer routeId;
+    private String startTime;
 }

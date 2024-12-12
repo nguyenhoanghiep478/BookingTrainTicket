@@ -13,5 +13,6 @@ public class ScheduleModel {
     private Integer id;
     private Integer trainId;
     private Integer routeId;
+    private String startTime;
 
 }

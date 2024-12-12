@@ -55,7 +55,6 @@ public class AuthService  implements IAuthService {
     private final RedisService redisService;
     private final HandleFailedAttemptLoginUseCase handleFailedAttemptLoginUseCase;
     private final HardDeleteUserUseCase hardDeleteUserUseCase;
-    private final EventPublisher eventPublisher;
 
 
     @Override
@@ -108,9 +107,7 @@ public class AuthService  implements IAuthService {
                         .value(request.getEmail())
                         .build()))
                 .get(0);
-        if(redisService.isUserWorking(userCredential.getEmail())){
-            throw new InvalidSessionLoginException("User has login in another place");
-        }
+
 
         try {
            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
@@ -136,16 +133,29 @@ public class AuthService  implements IAuthService {
                 }
 
                 String accessToken = generateToken(request.getEmail());
-                redisService.addUserSession(userCredential.getEmail(),accessToken);
+                String refreshToken = generateRefreshToken(request.getEmail());
+                boolean isMultipleLogin = false;
+                Integer requestId = null;
+                if(redisService.isUserWorking(userCredential.getEmail())){
+                    isMultipleLogin = true;
+                    Random random = new Random();
+                    requestId = Math.abs(random.nextInt());
+                    EventPublisher.getInstance().publishEventMultipleLogin(userCredential.getEmail(), accessToken, refreshToken,requestId);
+                }else{
+                    EventPublisher.getInstance().publishEventUserLogin(userCredential.getEmail(),accessToken,refreshToken,userCredential.getId(),null);
+                }
                 return AuthResponse.builder()
                         .accessToken(accessToken)
-                        .refreshToken(ResponseCookie.from("refresh-token",generateRefreshToken(request.getEmail()))
+                        .refreshToken(ResponseCookie.from("refresh-token",refreshToken)
                                 .httpOnly(true)
                                 .secure(true)
                                 .path("/")
                                 .build())
                         .profile(findById(userCredential.getId()))
+                        .isMultipleLogin(isMultipleLogin)
+                        .requestId(requestId)
                         .build();
+
         }catch (BadCredentialsException e){
             handleFailedAttemptLoginUseCase.increaseFailedAttempts(userCredential);
             if (userCredential.getFailAttempt() >= MAX_FAILED_ATTEMPTS) {
@@ -266,13 +276,7 @@ public class AuthService  implements IAuthService {
 
     @Override
     public void logOut(String token, String refreshToken) {
-        token = token.replace("Bearer ","");
-        jwtService.addToBlacklist(token);
-        if(refreshToken != null){
-            jwtService.addToBlacklist(refreshToken);
-        }
-        String userName =  jwtService.extractUsername(token);
-        redisService.removeUserSession(userName);
+      EventPublisher.getInstance().publishEventLogoutUser(token,false);
 
     }
 
@@ -327,16 +331,11 @@ public class AuthService  implements IAuthService {
 
     @KafkaListener(id = "consumer-logout-user",topics = "log-out-user")
     private void handlePreventSpam(String token){
+        log.info(token);
        blockUserByToken(token);
     }
 
     private void blockUserByToken(String token){
-        token = token.replace("Bearer ","");
-        String  username = jwtService.extractUsername(token);;
-        UserCredential userCredential = findUserUseCase.findByUserName(username);
-        jwtService.addToBlacklist(token);
-        handleFailedAttemptLoginUseCase.lockUser(userCredential);
-
-        eventPublisher.publishEventLogoutUserId(userCredential.getId());
+       EventPublisher.getInstance().publishEventLogoutUser(token,true);
     }
 }

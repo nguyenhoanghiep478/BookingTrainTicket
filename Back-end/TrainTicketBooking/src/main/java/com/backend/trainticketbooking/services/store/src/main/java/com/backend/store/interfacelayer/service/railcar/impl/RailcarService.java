@@ -37,9 +37,14 @@ public class RailcarService implements IRailcarService {
     }
 
     private RailcarDTO toDTO(Railcar railcar) {
+        String trainName =null;
+        if(railcar.getTrain() != null){
+                trainName = railcar.getTrain().getTrainName();
+        }
         return RailcarDTO.builder()
+                .id(railcar.getId())
                 .railcarType(railcar.getRailcarType())
-                .trainName(railcar.getTrain().getTrainName())
+                .trainName(trainName)
                 .name(railcar.getName())
                 .capacity(railcar.getCapacity())
                 .isHaveFloor(railcar.getIsHaveFloor())

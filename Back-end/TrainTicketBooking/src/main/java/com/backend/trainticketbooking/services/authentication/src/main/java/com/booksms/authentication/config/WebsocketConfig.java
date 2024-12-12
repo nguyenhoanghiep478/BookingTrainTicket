@@ -1,28 +1,33 @@
 package com.booksms.authentication.config;
 
-import com.booksms.authentication.core.constant.STATIC_VAR;
+import com.booksms.authentication.interfaceLayer.websocket.CustomHandleWebSocket;
+import com.booksms.authentication.interfaceLayer.websocket.interceptor.WebsocketInterceptor;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.messaging.simp.config.MessageBrokerRegistry;
-import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
-import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
-import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
-
-import static com.booksms.authentication.core.constant.STATIC_VAR.*;
+import org.springframework.web.socket.config.annotation.EnableWebSocket;
+import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
+import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 
 @Configuration
-@EnableWebSocketMessageBroker
-public class WebsocketConfig implements WebSocketMessageBrokerConfigurer {
+@EnableWebSocket
+@RequiredArgsConstructor
+public class WebsocketConfig implements WebSocketConfigurer {
+    private final CustomHandleWebSocket customHandleWebSocket;
+    private final WebsocketInterceptor websocketInterceptor;
+    @Value("${HOME_FRONT_END_URL}")
+    private String frontEndURl;
     @Override
-    public void configureMessageBroker(MessageBrokerRegistry config) {
-       config.enableSimpleBroker(WEBSOCKET_TOPIC_LOGOUT_ENDPOINT);
-       config.setApplicationDestinationPrefixes(WEBSOCKET_PREFIX_ENDPOINT);
-    }
+    public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
+        registry.addHandler(customHandleWebSocket,"/websocket/auth")
+                .addInterceptors(websocketInterceptor)
+                .setAllowedOrigins("*")
+                .setAllowedOriginPatterns("*")
 
+        ;
 
-    @Override
-    public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint(WEBSOCKET_CONNECT_ENDPOINT)
-                .setAllowedOrigins("http://localhost:3000")
-                .withSockJS();
+        ;
+        ;
+
     }
 }

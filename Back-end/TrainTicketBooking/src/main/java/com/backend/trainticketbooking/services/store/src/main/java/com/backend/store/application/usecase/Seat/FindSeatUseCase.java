@@ -91,7 +91,7 @@ public class FindSeatUseCase {
            List<String> seatNumbers = List.of(rowSeatNumbers.split(","));
            Railcar railcar = findRailcarUseCase.findByRailcarName(railcarName);
            for(Seat seat : railcar.getSeats()){
-               isAvailable = seatNumbers.contains(seat.getSeatNumber());
+                isAvailable = seatNumbers.contains(seat.getSeatNumber());
                 seats.add(toShortSeatDTO(seat,isAvailable));
            }
 
@@ -100,6 +100,7 @@ public class FindSeatUseCase {
                     .totalSeatAvailable(seatNumbers.size())
                     .totalSeat(railcar.getSeats().size())
                     .seats(seats)
+                    .railcarType(railcar.getRailcarType())
                     .build();
            railcarDTOs.add(railcarDTO);
         }
@@ -111,6 +112,7 @@ public class FindSeatUseCase {
                 .id(seat.getId())
                 .seatNumber(seat.getSeatNumber())
                 .isAvailable(isAvailable)
+                .price(seat.getPrice())
                 .build();
     }
 }

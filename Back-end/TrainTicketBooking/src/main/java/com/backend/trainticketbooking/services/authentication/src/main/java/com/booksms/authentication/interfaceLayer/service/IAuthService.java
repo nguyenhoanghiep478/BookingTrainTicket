@@ -33,4 +33,6 @@ public interface IAuthService {
     void hardDeleteById(DeleteUserRequest request);
 
     UpdateUserResponse updateUser(UpdateUserRequest request);
+
+    UserDTO findByEmail(String userName);
 }

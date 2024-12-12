@@ -21,6 +21,7 @@ public class CreateScheduleService implements ICreateScheduleService {
         ScheduleModel scheduleModel = ScheduleModel.builder()
                 .trainId(request.getTrainId())
                 .routeId(request.getRouteId())
+                .startTime(request.getStartTime())
                 .build();
         return createScheduleUseCase.execute(scheduleModel);
     }

@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.util.List;
 
 @RestController
@@ -55,5 +56,19 @@ public class TicketController {
         byte[] qrBytes = qr.getBytes();
         String result = ticketService.readQRCode(qrBytes);
         return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/get-all-ticket-by")
+    public ResponseEntity<?> allTicketBy(
+            @RequestParam(required = false) String departureStationName,
+            @RequestParam(required = false) String arrivalStationName,
+            @RequestParam(required = false) Timestamp departureTime
+            ) throws IOException {
+        List<TicketDTO> response = ticketService.getByDepartureNameArrivalNameAndDepartureTime(departureStationName,arrivalStationName,departureTime);
+        return ResponseEntity.ok(ResponseDTO.builder()
+                .status(200)
+                .message(List.of("get ticket successful"))
+                .result(response)
+                .build());
     }
 }
