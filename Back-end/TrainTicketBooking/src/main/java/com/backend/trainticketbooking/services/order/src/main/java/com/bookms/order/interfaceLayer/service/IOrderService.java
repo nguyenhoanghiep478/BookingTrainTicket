@@ -37,4 +37,6 @@ public interface IOrderService {
     OrdersModel handleCodPaymentMethod(OrderDTO request);
 
     List<OrderDTO> findByCustomerId(int id);
+
+    List<OrderDTO> findWithFilterOrderNumberHaveRoundTrip(Long orderNumber);
 }

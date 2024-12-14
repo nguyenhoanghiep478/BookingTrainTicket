@@ -36,6 +36,7 @@ public class Order extends AbstractEntity{
     @Column(nullable=false)
     private Integer paymentId;
     private Integer ticketId;
+    private Boolean isHaveRoundTrip;
     @PrePersist
     public void prePersist(){
         if(this.status == null){

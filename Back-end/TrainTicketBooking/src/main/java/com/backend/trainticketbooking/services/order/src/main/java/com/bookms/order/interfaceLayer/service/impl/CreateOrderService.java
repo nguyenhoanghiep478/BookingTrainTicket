@@ -23,6 +23,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -52,8 +53,15 @@ public class CreateOrderService implements ICreateOrderService {
         if(request.getCustomerId().equals(0)){
             ordersModel.setCustomerId(null);
         }
+        BigDecimal totalPrice = ordersModel.getTotalPrice();
         List<OrderItemModel> orderItems = request.getOrderItems();
-        int size = request.getRoundTripItems().size();
+        int size = 0;
+        if(ordersModel.getIsHaveRoundTrip()){
+            size = request.getRoundTripItems().size();
+            totalPrice = totalPrice.subtract(request.getRoundTripTotalPrice());
+        }else{
+            size = request.getOrderItems().size();
+        }
         List<Integer> forwardSeatIds = new ArrayList<>();
         for(int i = 0; i < size; i++){
             Integer seatId = orderItems.get(i).getSeatId();
@@ -68,9 +76,11 @@ public class CreateOrderService implements ICreateOrderService {
                 .arrivalStationId(ordersModel.getArrivalStationId())
                 .departureStationId(ordersModel.getDepartureStationId())
                 .seatIds(forwardSeatIds)
+                .orderNumber(request.getOrderNumber())
                 .customerId(ordersModel.getCustomerId())
-                .price(ordersModel.getTotalPrice().subtract(request.getRoundTripTotalPrice()))
+                .price(totalPrice)
                 .build();
+        log.info(ticketDTO.toString());
         storeKafkaTemplate.send("order-created", ticketDTO);
 
         if(request.getIsHaveRoundTrip()){
@@ -108,7 +118,12 @@ public class CreateOrderService implements ICreateOrderService {
 
         ordersModel = orderRedisService.getOrder(request.getOrderNumber());
         createOrderUseCase.execute(ordersModel);
-        ordersModel.setOrderNumber(ordersModel.getOrderNumber()-1);
+        if(ordersModel.getIsHaveRoundTrip()){
+            ordersModel.setOrderNumber(ordersModel.getOrderNumber()-1);
+        }else{
+            ordersModel.setOrderNumber(ordersModel.getOrderNumber());
+        }
+
         return getPaymentModel(ordersModel);
     }
 
@@ -155,7 +170,7 @@ public class CreateOrderService implements ICreateOrderService {
         String description = null;
         BigDecimal priceByMethod = ordersModel.getTotalPrice();
         if(ordersModel.getPaymentMethod().equals(PaymentMethod.PAYPAL)){
-            priceByMethod = priceByMethod.divide(BigDecimal.valueOf(24));
+            priceByMethod = priceByMethod.divide(BigDecimal.valueOf(24000), RoundingMode.HALF_UP);
             description = PAYPAL.description;
         }else if(ordersModel.getPaymentMethod().equals(PaymentMethod.MOMO)){
             description = MOMO.description;

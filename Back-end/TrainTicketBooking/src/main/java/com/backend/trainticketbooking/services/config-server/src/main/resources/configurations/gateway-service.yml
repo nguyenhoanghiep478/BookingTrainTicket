@@ -123,6 +123,12 @@ spring:
             - Path=/api/v1/railcar/**
           filters:
             - AuthenticationFilter
+        - id: payment-service
+          uri: lb:http://PAYMENT-SERVICE
+          predicates:
+            - Path=/api/v1/payment/**
+          filters:
+            - AuthenticationFilter
         - id: train-service
           uri: lb:http://STORE-SERVICE
           predicates:

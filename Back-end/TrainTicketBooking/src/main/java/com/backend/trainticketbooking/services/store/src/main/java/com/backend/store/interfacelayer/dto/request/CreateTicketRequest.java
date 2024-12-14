@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.util.List;
 
 @Data
@@ -31,4 +32,5 @@ public class CreateTicketRequest {
     @NotNull(message = "Customer email is required")
     private String customerEmail;
     private Integer customerId;
+    private Long orderNumber;
 }

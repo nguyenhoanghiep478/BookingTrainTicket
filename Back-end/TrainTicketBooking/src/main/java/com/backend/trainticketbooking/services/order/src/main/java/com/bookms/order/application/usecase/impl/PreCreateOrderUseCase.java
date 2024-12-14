@@ -38,18 +38,22 @@ public class PreCreateOrderUseCase implements BaseUseCase<OrdersModel, OrdersMod
             }
         }
 
+        if(orders.getIsHaveRoundTrip() == null){
+            orders.setIsHaveRoundTrip(false);
+        }
+        Random random = new Random();
+
         List<SeatModel> seatModels = serviceGateway.getSeatsAvailableInSystem(orders);
         orders.setSeatModels(seatModels);
-        if(orders.getIsHaveRoundTrip()){
+        if(orders.getIsHaveRoundTrip() != null && orders.getIsHaveRoundTrip()){
             List<OrderItemModel> forwardItems = orders.getOrderItems();
             forwardItems.addAll(orders.getRoundTripItems());
             orders.setOrderItems(forwardItems);
+        orders.setRoundTripTicketId(Math.abs(random.nextInt()));
         }
         BigDecimal totalPrice =  validOrder(orders,seatModels);
         orders.setTotalPrice(totalPrice);
-        Random random = new Random();
         orders.setTicketId(Math.abs(random.nextInt()));
-        orders.setRoundTripTicketId(Math.abs(random.nextInt()));
 
 
 
@@ -67,6 +71,8 @@ public class PreCreateOrderUseCase implements BaseUseCase<OrdersModel, OrdersMod
     private BigDecimal validOrder(OrdersModel order, List<SeatModel> seatModels){
         BigDecimal totalPrice = BigDecimal.ZERO;
         BigDecimal roundTripPrice = BigDecimal.ZERO;
+        int orderItemSize = order.getOrderItems().size();
+
         if(order.getIsHaveRoundTrip()){
             int forwardSize = order.getSeatModels().size()/2;
             for(int i = 0 ; i< order.getRoundTripItems().size();i++){
@@ -80,9 +86,10 @@ public class PreCreateOrderUseCase implements BaseUseCase<OrdersModel, OrdersMod
                 roundTripPrice = roundTripPrice.add(price);
             }
             order.setRoundTripTotalPrice(roundTripPrice);
+            orderItemSize = orderItemSize/2;
         }
 
-        for(int i = 0 ; i<order.getOrderItems().size()/2 ; i++){
+        for(int i = 0 ; i<orderItemSize ; i++){
             BigDecimal price = seatModels.get(i).getPrice().stripTrailingZeros();
             price = price.setScale(2, RoundingMode.HALF_UP);
             BigDecimal orderPrice = order.getOrderItems().get(i).getPrice().stripTrailingZeros();

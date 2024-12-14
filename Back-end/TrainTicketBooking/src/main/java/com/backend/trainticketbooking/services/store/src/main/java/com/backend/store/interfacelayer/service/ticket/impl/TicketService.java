@@ -5,6 +5,7 @@ import com.backend.store.core.domain.entity.schedule.ScheduleStation;
 import com.backend.store.core.domain.entity.schedule.Station;
 import com.backend.store.core.domain.entity.train.Train;
 import com.backend.store.core.domain.state.TicketStatus;
+import com.backend.store.infrastructure.servicegateway.IOrderService;
 import com.backend.store.interfacelayer.dto.objectDTO.TicketDTO;
 import com.backend.store.interfacelayer.dto.request.CreateTicketRequest;
 import com.backend.store.interfacelayer.service.QRCode.IQRCodeService;
@@ -98,8 +99,13 @@ public class TicketService implements ITicketService {
 
 
     public TicketDTO toDTO(Ticket ticket) {
+        String trainName = null;
+
         Train train = ticket.getTicketSeats().stream()
                 .map(ticketSeat -> ticketSeat.getSeat().getRailcar().getTrain()).toList().get(0);
+        if(train != null){
+        trainName = train.getTrainName();
+        }
         return TicketDTO.builder()
                 .arrivalStationName(ticket.getArrivalStation().getName())
                 .departureStationName(ticket.getDepartureStation().getName())
@@ -110,7 +116,24 @@ public class TicketService implements ITicketService {
                         .toList()
                         .get(0).getDepartureTime()
                 )
+                .customerEmail(ticket.getEmail())
+                .customerName(ticket.getCustomerName())
+                .trainName(trainName)
                 .price(ticket.getTotalPrice())
                 .build();
     }
+
+    @Override
+    public List<TicketDTO> getByOrderNumber(Long orderNumber) {
+        List<Ticket> ticket = findTicketService.getByOrderNumber(orderNumber);
+        return ticket.stream().map(this::toDTO).toList();
+    }
+
+    @Override
+    public List<TicketDTO> getByEmail(String email) {
+        List<Ticket> tickets = findTicketService.getByEmail(email);
+        return tickets.stream().map(this::toDTO).toList();
+    }
+
+
 }

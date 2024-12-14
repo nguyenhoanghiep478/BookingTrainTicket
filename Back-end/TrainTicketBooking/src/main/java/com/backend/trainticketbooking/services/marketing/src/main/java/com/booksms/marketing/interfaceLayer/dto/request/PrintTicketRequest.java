@@ -9,4 +9,5 @@ import lombok.*;
 public class PrintTicketRequest extends NotificationsDepartureTime{
     private String arrivalStation;
     private String qrCode;
+    private Long orderNumber;
 }

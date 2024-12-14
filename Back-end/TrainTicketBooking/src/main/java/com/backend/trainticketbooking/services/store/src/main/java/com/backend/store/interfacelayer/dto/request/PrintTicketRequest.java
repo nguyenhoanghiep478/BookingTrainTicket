@@ -9,4 +9,5 @@ import lombok.Setter;
 public class PrintTicketRequest extends NotificationRequest{
     private String arrivalStation;
     private String qrCode;
+    private Long orderNumber;
 }

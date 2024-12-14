@@ -61,10 +61,10 @@ public class CreateTicketUseCase {
             TicketSeat ticketSeat = new TicketSeat();
             ticketSeat.setSeat(seat);
             ticketSeat.setTicket(ticket);
-            ticketSeat.setPrice(model.getPrice());
+            ticketSeat.setPrice(seat.getPrice());
             seats.add(ticketSeat);
             seat.getTicket().add(ticketSeat);
-            totalPrice = totalPrice.add(model.getPrice());
+            totalPrice = totalPrice.add(seat.getPrice());
         }
         ticket.setCustomerName(model.getCustomerName());
         ticket.setEmail(model.getCustomerEmail());

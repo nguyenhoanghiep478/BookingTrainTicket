@@ -24,4 +24,5 @@ public class TicketModel {
     private String customerEmail;
     private Integer customerId;
     private TicketStatus status;
+    private Long orderNumber;
 }

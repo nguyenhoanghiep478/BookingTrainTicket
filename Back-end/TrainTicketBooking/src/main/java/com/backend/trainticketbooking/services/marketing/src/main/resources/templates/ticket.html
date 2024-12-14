@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
+    <meta http-equiv="Content-Security-Policy" content="img-src 'self' data:;">
     <meta charset="UTF-8">
     <title>Train Ticket</title>
     <style>
@@ -78,6 +79,7 @@
 
     <div class="ticket-details">
         <p><span>Customer Name:</span> <span th:text="${customerName}"></span></p>
+        <p><span>Order Number:</span> <span th:text="${orderNumber}"></span></p>
         <p><span>Train Name:</span> <span th:text="${trainName}"></span></p>
         <p><span>Seat:</span> <span th:each="seat : ${seatName}" th:text="${seat} + ' '"></span></p>
         <p><span>Departure Time:</span> <span th:text="${departureTime}"></span></p>
@@ -86,7 +88,7 @@
     </div>
 
     <div class="qr-code-container">
-        <img th:src="'data:image/jpeg;base64,' + ${qrCode}" alt="QR Code" />
+        <img th:src="'cid:QRCode'" alt="QR Code" />
     </div>
 
     <div class="ticket-footer">

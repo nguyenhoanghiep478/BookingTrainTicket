@@ -25,5 +25,5 @@ public class STATIC_VAR {
 
     public static final String MESSAGE_LOGOUT ="logout";
 
-    public static final String URL_ACCEPT_MULTIPLE_LOG_IN ="https://5029-113-22-113-75.ngrok-free.app/api/v1/auth/anonymous/accept-multiple-log-in?requestId=";
+    public static final String URL_ACCEPT_MULTIPLE_LOG_IN ="https://trainsgu.pagekite.me/api/v1/auth/anonymous/accept-multiple-log-in?requestId=";
 }

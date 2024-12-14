@@ -36,7 +36,7 @@ public class StoreServiceGateway implements IStoreServiceGateway {
            List<Integer> seatIds = orders.getOrderItems().stream().map(OrderItemModel::getSeatId).toList();
            ResponseEntity<ResponseDTO> response = storeClient.getSeatAvailableById(seatIds,orders.getScheduleId(), orders.getDepartureStationId(), orders.getArrivalStationId());
            ResponseDTO roundTripResponseDTO = null;
-           if(orders.getIsHaveRoundTrip()){
+           if(orders.getIsHaveRoundTrip() != null && orders.getIsHaveRoundTrip()){
                List<Integer> roundTripSeatIds = orders.getRoundTripItems().stream().map(OrderItemModel::getSeatId).toList();
                  ResponseEntity<ResponseDTO> roundTripResponse = storeClient.getSeatAvailableById(roundTripSeatIds,orders.getRoundTripScheduleId(), orders.getArrivalStationId(), orders.getDepartureStationId());
                 roundTripResponseDTO = roundTripResponse.getBody();

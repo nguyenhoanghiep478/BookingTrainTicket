@@ -32,6 +32,7 @@ public class CreateOrderUseCase implements BaseUseCase<OrdersModel,OrdersModel>{
         if(orderModel.getIsHaveRoundTrip()){
             List<Order> orders = orderMapperUseCase.toOrdersWithRoundTrip(orderModel);
             Order forwardOrder = orders.get(0);
+            forwardOrder.setIsHaveRoundTrip(true);
             Order roundTripOrder = orders.get(1);
             orderModel.setForwardSeatIds(getForwardTripSeatIds(orderModel));
             orderModel.setRoundTripSeatIds(getRoundTripSeatIds(orderModel));

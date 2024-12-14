@@ -24,7 +24,7 @@ import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/payment/paypal")
+@RequestMapping("/api/v1/payment/paypal/anonymous")
 @Slf4j
 public class PaypalController {
     private final PaypalGateway paypalGateway;

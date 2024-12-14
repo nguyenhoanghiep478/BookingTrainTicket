@@ -20,5 +20,6 @@ public class TicketDTO {
     private List<String> seatNumber;
     private BigDecimal price;
     private String trainName;
-
+    private String customerName;
+    private String customerEmail;
 }

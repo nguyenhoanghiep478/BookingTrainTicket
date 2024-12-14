@@ -23,4 +23,9 @@ public interface ITicketService {
     List<TicketDTO> getByDepartureNameArrivalNameAndDepartureTime(String departureStationName, String arrivalStationName, Timestamp departureTime);
 
     TicketDTO toDTO(Ticket ticket);
+
+
+    List<TicketDTO> getByOrderNumber(Long orderNumber);
+
+    List<TicketDTO> getByEmail(String email);
 }

@@ -13,10 +13,10 @@ import java.util.Map;
 public class AssistantService {
     private final OpenAIClient assistantService;
 
-    public String getResponse(Integer memoryId,String message){
+    public String getResponse(String memoryId,String message){
         Map<String, Object> request = new HashMap<>();
-        request.put("text", message);
-
+        request.put("message", message);
+        request.put("id",memoryId);
         return assistantService.chat(request);
     }
 }

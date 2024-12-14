@@ -24,6 +24,17 @@ public class OrderController {
     private final IOrderService service;
     private final IPaymentServiceGateway paymentServiceGateway;
 
+    @GetMapping("/get-by-order-number")
+    public ResponseEntity<?> getByOrderNumber(@RequestParam Long orderNumber) {
+        List<OrderDTO> response = service.findWithFilterOrderNumberHaveRoundTrip(orderNumber);
+        return ResponseEntity.ok(ResponseDTO.builder()
+                .message(Arrays.asList("getAllOrderSuccessful"))
+                .status(201)
+                .result(response)
+                .build());
+
+    }
+
     @GetMapping("/get-all")
     public ResponseEntity<?> GetAll() {
         //get listDTO

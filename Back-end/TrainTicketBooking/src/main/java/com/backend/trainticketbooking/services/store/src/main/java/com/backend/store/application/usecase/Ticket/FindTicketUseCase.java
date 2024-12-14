@@ -65,4 +65,13 @@ public class FindTicketUseCase {
     public List<Ticket> findTicketByDepartureIdAndArrivalIdAndDepartureTime(Integer id, Integer id1, Timestamp departureTime) {
         return ticketRepository.findByDepartureIdAndArrivalIdAndDepartureTime(id,id1,departureTime);
     }
+
+    public Ticket findById(int id) {
+        Criteria criteria = Criteria.builder()
+                .key("id")
+                .operation(":")
+                .value(id)
+                .build();
+        return execute(List.of(criteria)).stream().findFirst().orElse(null);
+    }
 }

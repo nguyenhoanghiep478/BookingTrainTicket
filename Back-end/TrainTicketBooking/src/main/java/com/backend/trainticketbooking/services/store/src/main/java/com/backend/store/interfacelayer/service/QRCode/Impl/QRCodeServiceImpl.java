@@ -43,7 +43,7 @@ public class QRCodeServiceImpl implements IQRCodeService {
             }
         }
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ImageIO.write((RenderedImage) bufferedImage, "png", baos);
+        ImageIO.write((RenderedImage) bufferedImage, "jpg", baos);
         return baos.toByteArray();
     }
 
@@ -69,6 +69,6 @@ public class QRCodeServiceImpl implements IQRCodeService {
     @Override
     public String generateBase64QRCode(String text) throws WriterException, IOException {
         byte[] qrImage = generateQRCode(text);
-        return Base64.getEncoder().encodeToString(qrImage);
+        return "data:image/jpeg;base64," + Base64.getMimeEncoder().encodeToString(qrImage);
     }
 }

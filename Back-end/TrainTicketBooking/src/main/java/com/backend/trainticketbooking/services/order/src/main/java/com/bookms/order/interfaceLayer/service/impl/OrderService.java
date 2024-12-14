@@ -73,6 +73,8 @@ public class OrderService implements IOrderService {
         return modelMapper.map(findOrderService.findByOrderNumber(orderNumber),OrderDTO.class);
     }
 
+
+
     @Override
     public PaymentModel prePay(OrderDTO request) {
         return createOrderService.prePayment(request);
@@ -147,7 +149,22 @@ public class OrderService implements IOrderService {
 
     }
 
+    @Override
+    public List<OrderDTO> findWithFilterOrderNumberHaveRoundTrip(Long orderNumber) {
+        List<OrderDTO> result = new ArrayList<>();
+        OrderDTO orderDTO = findByOrderNumber(orderNumber);
+        result.add(orderDTO);
 
+        if(orderDTO.getIsHaveRoundTrip() == null){
+            orderDTO.setIsHaveRoundTrip(false);
+        }
+
+        if(orderDTO.getIsHaveRoundTrip()){
+            OrderDTO roundTripDTO = findByOrderNumber(orderDTO.getOrderNumber()+1);
+            result.add(roundTripDTO);
+        }
+        return result;
+    }
 
 
 }

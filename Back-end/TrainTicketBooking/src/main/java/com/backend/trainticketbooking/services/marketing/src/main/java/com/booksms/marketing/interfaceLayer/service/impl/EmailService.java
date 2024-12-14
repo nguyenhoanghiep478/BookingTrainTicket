@@ -9,7 +9,11 @@ import com.booksms.marketing.interfaceLayer.dto.VerifyUserDTO;
 import com.booksms.marketing.interfaceLayer.dto.request.*;
 import com.booksms.marketing.interfaceLayer.service.IEmailService;
 import com.booksms.marketing.interfaceLayer.service.RedisNewUserService;
+import jakarta.activation.DataHandler;
+import jakarta.mail.internet.MimeBodyPart;
 import jakarta.mail.internet.MimeMessage;
+import jakarta.mail.internet.MimeMultipart;
+import jakarta.mail.util.ByteArrayDataSource;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -27,6 +31,7 @@ import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Base64;
 import java.util.Random;
 
 @Service
@@ -121,7 +126,7 @@ public class EmailService implements IEmailService {
     protected void sendMimeMessageMail(String template, String receipt, Context context, String subject) {
         try {
             MimeMessage mimeMessage = mailSender.createMimeMessage();
-            MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true, "utf-8");
+            MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
 
             String htmlBody = templateEngine.process(template, context);
 
@@ -129,6 +134,26 @@ public class EmailService implements IEmailService {
             mimeMessageHelper.setSubject(subject);
             mimeMessageHelper.setText(htmlBody, true);
             mimeMessageHelper.setFrom(from);
+
+           if(context.getVariable("qrCode") != null){
+               MimeBodyPart qrPart = new MimeBodyPart();
+               byte[] qrCodeBytes = Base64.getMimeDecoder().decode(context.getVariable("qrCode").toString().split(",")[1]);
+               qrPart.setDataHandler(new DataHandler(new ByteArrayDataSource(qrCodeBytes, "image/jpg")));
+               qrPart.setHeader("Content-ID", "<QRCode>");
+               qrPart.setDisposition(MimeBodyPart.INLINE);
+
+               context.setVariable("qrCode", "cid:QRCode");
+
+               MimeBodyPart htmlPart = new MimeBodyPart();
+               htmlPart.setContent(htmlBody, "text/html;charset=UTF-8");
+
+               MimeMultipart multipart = new MimeMultipart();
+               multipart.addBodyPart(htmlPart);
+               multipart.addBodyPart(qrPart);
+
+               mimeMessage.setContent(multipart);
+           }
+
             mailSender.send(mimeMessage);
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
@@ -164,6 +189,7 @@ public class EmailService implements IEmailService {
     public void printTicket(PrintTicketRequest printTicketRequest){
         log.info(printTicketRequest.toString());
         Context context = new Context();
+        context.setVariable("orderNumber",printTicketRequest.getOrderNumber());
         context.setVariable("customerName", printTicketRequest.getCustomerName());
         context.setVariable("trainName", printTicketRequest.getTrainName());
         context.setVariable("seatName",printTicketRequest.getSeatName());
@@ -171,6 +197,8 @@ public class EmailService implements IEmailService {
         context.setVariable("qrCode",printTicketRequest.getQrCode());
         context.setVariable("arrivalStationName",printTicketRequest.getArrivalStation());
         context.setVariable("departureStationName",printTicketRequest.getDepartureStation());
+        log.info(context.getVariable("qrCode").toString());
+
         sendMimeMessageMail("ticket", printTicketRequest.getEmail(), context,"ticket");
     }
 

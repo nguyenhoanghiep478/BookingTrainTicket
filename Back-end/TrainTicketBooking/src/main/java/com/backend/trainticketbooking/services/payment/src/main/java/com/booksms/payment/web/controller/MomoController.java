@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Random;
 
 @Controller
-@RequestMapping("/api/v1/payment/momo")
+@RequestMapping("/api/v1/payment/momo/anonymous")
 @RequiredArgsConstructor
 @Slf4j
 public class MomoController {
@@ -51,7 +51,7 @@ public class MomoController {
                 .message(List.of("failed"))
                 .result(ResponsePaymentPageModel.builder()
                         .status("failed")
-                        .message("http://localhost:5558/api/v1/payment/momo/error")
+                        .message("https://trainsgu.pagekite.me/api/v1/payment/momo/anonymous/error")
                         .build())
                 .build());
     }
