@@ -10,6 +10,7 @@ Trước khi bắt đầu, bạn cần cài đặt các công cụ và dịch v�
 2. **Apache Kafka**: Để xử lý các sự kiện bất đồng bộ.
 3. **Redis**: Để lưu trữ cache hoặc xử lý các tác vụ liên quan.
 4. **Spring Boot**: Phiên bản 3.2.x.
+6. **PostgreSQL**: Để lưu trữ dữ liệu.
 5. **Docker** và **Docker Compose** (không bắt buộc nhưng khuyến nghị để đơn giản hóa việc chạy các dịch vụ).
 6. **Python**: Phiên bản 3.8 trở lên.
 7. **Pip**: Trình quản lý thư viện Python.
