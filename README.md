@@ -11,7 +11,9 @@ Trước khi bắt đầu, bạn cần cài đặt các công cụ và dịch v�
 3. **Redis**: Để lưu trữ cache hoặc xử lý các tác vụ liên quan.
 4. **Spring Boot**: Phiên bản 3.2.x.
 5. **Docker** và **Docker Compose** (không bắt buộc nhưng khuyến nghị để đơn giản hóa việc chạy các dịch vụ).
-
+6. **Python**: Phiên bản 3.8 trở lên.
+7. **Pip**: Trình quản lý thư viện Python.
+8. **Virtual Environment** (khuyến nghị): Để tránh xung đột thư viện.
 ---
 
 ## Cấu trúc dịch vụ
