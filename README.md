@@ -119,6 +119,13 @@ cd order-service
 ```
 
 ---
+### Chatbot Service:
+```bash
+cd AI
+python -m venv venv
+.\venv\Scripts\activate
+pip install -r
+python main.py
 
 ## Kiểm tra ứng dụng
 
